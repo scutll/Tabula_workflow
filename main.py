@@ -16,8 +16,7 @@ pending_requests={}
 #将要发送的信息添加上requestId后加入到发送队列
 def add_to_send_list(data):
     data['requestId']=Get_requestId()
-    request=json.dumps(data)
-    request_to_send.append(request)
+    request_to_send.append(data)
 
    
 
@@ -68,7 +67,7 @@ def Get_requestId():
 '''
 async def send(request,websocket):
     print('sending request')
-    requestId=request['requestId']
+    requestId=request["requestId"]
     await websocket.send(json.dumps(request))
 
     #wait for confirm
@@ -125,5 +124,10 @@ async def main():
         await asyncio.Future()
 
 if __name__=='__main__':
+    data={
+        "type":"greet",
+        "data":"hello",
+    }
+    add_to_send_list(data)
     asyncio.run(main())
 
