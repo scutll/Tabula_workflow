@@ -2,7 +2,12 @@ import websockets
 import asyncio
 import json
 import time
+import random
 
+'''
+信息样式，confirm类信息的data为null
+'''
+'{"type":"confirm", "data":null,"requestId":"1145141919810hxd"}'
 
 '''
 request_list: 从前端接收到的请求，即将执行
@@ -55,10 +60,13 @@ async def recv(data,websocket):
 
 '''
 get an unique requestId
-时间戳+py2ht
+时间戳+三位随机数+py2ht
 '''
 def Get_requestId():
-    return str(int(time.time()*1000))+'py2ht'
+    suffix='py2ht'
+    times=int(time.time())
+    rand=random.randint(100,999)
+    return str(times)+str(rand)+suffix
 
 
 '''
@@ -83,8 +91,10 @@ async def send(request,websocket):
     except asyncio.CancelledError: #请求得到确认，超时任务被取消
         print('confirmed!')
     finally:
+        # print(pending_requests)
         if requestId in pending_requests:
             del pending_requests[requestId]
+        # print(pending_requests)
 
 
 
@@ -111,7 +121,9 @@ async def handle(websocket):
                 await send(request,websocket)
             await asyncio.sleep(0.1)
 
-    await asyncio.gather(recv_request(),send_request())
+    await asyncio.gather(
+        recv_request(),
+        send_request())
 
 
 
@@ -127,6 +139,11 @@ if __name__=='__main__':
     data={
         "type":"greet",
         "data":"hello",
+    }
+    add_to_send_list(data)
+    data={
+        "type":"send",
+        "data":"hello world",
     }
     add_to_send_list(data)
     asyncio.run(main())
