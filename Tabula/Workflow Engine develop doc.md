@@ -4,6 +4,7 @@
 
 ### blocklist
 - 使用一个OrderedDict记录创建且未被删除的块，带顺序
+- 使用块id匹配blocklist内容
 - BolckList
 	- 应实现功能
 		- 按id寻找块
@@ -20,11 +21,15 @@
 		- id ： 使用blck+uuid4标识
 		- content： 块的内容（文字文本或其他内容的标识）
 	- method：
-		- del_block: 删除块，将块移除出块列表
+		- get_id：获得id
+		- set_name：修改块名称
+		- get_content：返回原始内容
+		- set_content: 修改块内容
+		- add_content：追加块内容
 ### type
 - block的类型
 	- checkout
-	- normal
+	- text
 	- workflow
 	- header1
 	- header2
@@ -37,10 +42,13 @@
 		- type
 		- 专属属性
 	- method：
-		- add_block:添加块，将块添加入块列表
 		- 序列化
 		- 反序列化
 		- 专属方法
+- CheckoutBlock
+- WorkflowBlock
+- TextBlock
+- HeaderBlock
 ## **base_Taskspec**
 - 基本的任务单元，包含任务的基本信息，是所有任务类型的开发基础
 
