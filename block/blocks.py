@@ -23,13 +23,13 @@ define certain type of blocks
         - add_content: 追加块内容
 		
 '''
-from blockspec import blockspec
-from ..utils.id import get_block_id
-from type import blocktype
+from block.blockspec import blockspec
+from utils.id import get_block_id
+from block.type import blocktype
 
 class textblock(blockspec):
     def __init__(self,content=None,name=None):
-        super.__init__(content,name)
+        super().__init__(content,name)
         self.id=get_block_id()
         self.type=blocktype.text
 

@@ -9,6 +9,6 @@ get an id for block
 'blck' + uuid4
 '''
 def get_block_id():
-    return 'blck'+(uuid4())
+    return 'blck'+str(uuid4())
 
 

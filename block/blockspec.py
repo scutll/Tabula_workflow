@@ -12,7 +12,7 @@
 		- set_content: 修改块内容 x√
         - add_content: 追加块内容 x√
 '''
-from ..utils.id import get_block_id
+from utils.id import get_block_id
 
 class blockspec:
     def __init__(self,content=None,name=None):

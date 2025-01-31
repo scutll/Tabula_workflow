@@ -1,2 +1,3 @@
 /Tabula/.obsidian
-/spec
+__pycache__/
+test.py
