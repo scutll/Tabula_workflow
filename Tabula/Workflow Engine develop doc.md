@@ -74,10 +74,18 @@
 		- id task+uuid4
 	- Methods：
 		- run（父类不定义）
-		- cancel
-		- output 获取输出
+		- cancel 取消任务运行
+	- input需要从table已有的变量中选
 		- input_ready 检查输入是否全部齐全
 		- status 获取当前状态
+		- add_input 绑定输入
+		- remove_input 删除已绑定的输入
+		- change_input 将已绑定的输入替换为另一个输入
+	- output创建时要绑定到table
+		- remove_output 删除输出
+		- set_outputs 绑定所有输出
+		- add_output 绑定输出变量
+		- change_output 替换输出变量
 ### tasks
 - 设计各种任务类型
 - 基本属性方法
@@ -86,12 +94,6 @@
 		- next 任务后面连接的节点（列表）
 		- before 任务之前连接的节点（列表）
 	- Methods:
-		- bind_input 绑定输入
-		- remove_input 删除已绑定的输入
-		- change_input 将已绑定的输入替换为另一个输入
-		- remove_output 删除输出
-		- set_output 设置输出变量
-		- change_output 替换输出变量
 		- connect_ 连接任务
 		- disconnect_ 解除连接
 		- serialization 序列化
@@ -104,8 +106,7 @@
 - api_task
 ### tasklist
 - 存储可使用的任务节点
-- 使用一个networkx构建的有向图作为tasklist
-- 初始化时就有start_task和end_task
+- 使用id标识任务
 - Attri：
 	- len 任务数量
 - Method：
@@ -114,18 +115,20 @@
 	- get_task_by_Id 按id查找任务
 	- get_task_by_name 按name查找任务
 	- get_task_by_type 按类型查找任务
-	- show 展示任务连接关系，返回数据化形式的结构（给前端用）
+	- tasks 查阅所有已经添加的任务
 	- serialization/deserialization 序列化/反序列化
-	- conncet 连接任务用
-	- disconnect 删除任务连接
-	- check_ 检查是否满足运行格式
-		- 怎么样的任务流是可运行的?
 	- 
 
 ## **Workflow_spec**
 - 创建工作流的蓝图
-
-
+	- current_task 现在正在运行的任务
+	- show 展示任务连接关系，返回数据化形式的结构（给前端用）
+	- conncet 连接任务用
+	- disconnect 删除任务连接
+	- check_ 检查是否满足运行格式
+		- 怎么样的任务流是可运行的?
+	- 使用一个networkx构建的有向图构建工作流
+	- 初始化时就有start_task和end_task
 ### value_status
 - 标记变量的使用状态
 	- uninitialized 创建后未被初始化
@@ -137,11 +140,15 @@
 - task使用name绑定自身inputs、outputs，修改的是table的value
 	- Attri：
 		- values 被记录的变量，未就绪的(除了设置好的)为None，
-		- intpus 输入的变量数
-		- outputs 输出的变量数
+			- 变量类型：
+			- int
+			- float
+			- str
+			- bool
 	- Methods：
 		- set_value 按名字寻找变量并修改为指定值
 		- add_value 添加变量
+		- add_const_value 添加const变量
 		- del_value 删除变量
 		- get_value 获取变量值
 

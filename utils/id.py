@@ -12,3 +12,5 @@ def get_block_id():
     return 'blck'+str(uuid4())
 
 
+def get_task_id():
+    return 'task' + str(uuid4())
