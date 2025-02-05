@@ -110,5 +110,16 @@ class value_table:
         self.values[value_name]["value"]=val
         return True
     
-
-val_table=value_table()
+    def set_value_name(self,old,new):
+        '''
+        在变量表里修改名称
+        '''
+        if old not in self.values:
+            print(f"fail to find {old}")
+            return False
+        elif new in self.values:
+            print(f"{new} exists")
+            return False
+        
+        self.add_value(new,self.get_value(old),self.values[old]["status"])
+        self.del_value(old)

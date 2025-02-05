@@ -14,3 +14,6 @@ def get_block_id():
 
 def get_task_id():
     return 'task' + str(uuid4())
+
+def get_workflow_id():
+    return "wkfl" + str(uuid4())

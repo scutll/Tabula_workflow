@@ -1,20 +1,18 @@
 from Task.TaskStatus import TaskStatus
 from Task.base_taskspec import base_taskspec
-from Task.tasklist import tasklist
-from workflow.value_table import val_table
+from workflow.value_table import value_table
 
 class start_task(base_taskspec):
     '''
     工作流的开始任务，接受用户的输入
     默认有一个输入(DEFAULT_START_INPUT)
     '''
-    def __init__(self):
-        super().__init__()
+    def __init__(self,value_table:value_table,name=None):
+        super().__init__(value_table,name)
         self.type="start"
-        val_table.add_value("DEFAULT_START_INPUT")
+        self.val_table.add_value("DEFAULT_START_INPUT")
         self.add_input("DEFAULT_START_INPUT")
-        self.next=[]
-        self.before=[]
+
     
     def run():
         print("workflow starts:")
@@ -26,11 +24,10 @@ class end_task(base_taskspec):
     '''
     工作流的结束任务，将一些变量以一定方式组织成文本输出给用户
     '''
-    def __init__(self,name=None):
-        super().__init__()
+    def __init__(self,value_table:value_table,name=None):
+        super().__init__(value_table,name)
         self.type="end"
-        self.next=[]
-        self.before=[]
+
 
         '''
         输出的组织形式：
@@ -65,7 +62,7 @@ class end_task(base_taskspec):
         values=self.content["values"]
         content=self.content["content"]
         for val in values:
-            replave_val=val_table.get_value(val) if val_table.get_value(val) is not None else ""
+            replave_val=self.val_table.get_value(val) if self.val_table.get_value(val) is not None else ""
             content=content.replace(str("{"+val+"}"),replave_val)
         print(content)
         pass
@@ -79,15 +76,14 @@ class print_task(base_taskspec):
     只是简单的把input打印出来
     测试用
     '''
-    def __init__(self,name=None):
-        super().__init__(name)
+    def __init__(self,value_table=value_table,name=None):
+        super().__init__(value_table,name)
         self.type="print"
-        self.next=[]
-        self.before=[]
+
 
     def run(self):
         print(f"running task{self.name} {self.id}")
         for input in self.inputs:
-            input=val_table.get_value(input)
+            input=self.val_table.get_value(input)
             print(input)
         print("-"*25)

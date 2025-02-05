@@ -77,19 +77,21 @@
 		- cancel 取消任务运行
 	- input需要从table已有的变量中选
 		- input_ready 检查输入是否全部齐全
-		- status 获取当前状态
 		- add_input 绑定输入
 		- remove_input 删除已绑定的输入
 		- change_input 将已绑定的输入替换为另一个输入
-	- output创建时要绑定到table
+	- output也要从table已有的变量中选(处理逻辑与input相同)
 		- remove_output 删除输出
 		- set_outputs 绑定所有输出
 		- add_output 绑定输出变量
 		- change_output 替换输出变量
+
+		- setstatus 设置状态
 ### tasks
 - 设计各种任务类型
 - 基本属性方法
 	- Attri：
+		- val_table 工作流的变量表
 		- type 任务节点类型
 		- next 任务后面连接的节点（列表）
 		- before 任务之前连接的节点（列表）
@@ -104,7 +106,46 @@
 - LLM_task
 - print_task
 - api_task
+
+
+
+
+## **Workflow
+
+### workflow
+- 创建工作流
+- Attri:
+	- tasklist 工作流中可用的任务
+	- val_table 任务要使用的变量
+	- current_task 现在正在运行的任务
+	- 使用一个networkx构建的有向图构建工作流
+	- 初始化时就有start_task和end_task
+- Methods:
+    操作任务的方法尽量减少直接引用任务对象或者id,最好是名称,因此工作流任务的名称不能重复
+	- create_task 创建任务
+	- delete_task_by_id/by_name 删除任务
+	- has_task 任务是否在工作流中
+    - set_task_name 设置任务名
+	- add_input 为指定任务添加输入
+	- del_input 为指定任务删除输入 当该任务是最后一个拥有该变量的任务时将变量移除出变量表(可以是其他任务的输入或输出)
+	- add_output 添加输出
+	- del_output 删除输出 删除输出时要判断其他任务有没有使用该变量作为输入的，一并删除
+	- set_value_name 修改变量名-这样的话所有任务都得修改一次
+	- show 展示任务连接关系，返回数据化形式的结构（给前端用）
+	- conncet 连接任务,并判断连接后是否DAG
+	- disconnect 删除任务连接
+	- init_tasks 初始化任务状态，全部清除为waiting状态
+	- check_ 检查是否满足运行格式
+		- 怎么样的任务流是可运行的?
+	- run 运行工作流
+	- 
+	- serialization/deserialization 序列化/反序列化 （任务流里包括任务节点、变量表在内的所有信息）
+	- 
+
+
 ### tasklist
+- 放在工作流里，由工作流管理tasks
+- 使用有向图
 - 存储可使用的任务节点
 - 使用id标识任务
 - Attri：
@@ -119,24 +160,19 @@
 	- serialization/deserialization 序列化/反序列化
 	- 
 
-## **Workflow_spec**
-- 创建工作流的蓝图
-	- current_task 现在正在运行的任务
-	- show 展示任务连接关系，返回数据化形式的结构（给前端用）
-	- conncet 连接任务用
-	- disconnect 删除任务连接
-	- check_ 检查是否满足运行格式
-		- 怎么样的任务流是可运行的?
-	- 使用一个networkx构建的有向图构建工作流
-	- 初始化时就有start_task和end_task
+
 ### value_status
 - 标记变量的使用状态
+	- 放在工作流里面，作为工作流的一个属性
 	- uninitialized 创建后未被初始化
 	- ready 作为输入可使用
 	- const 常量不可被修改
 ### value_table
+- 将value_table的引用传递给task
 - 变量表，维护可以被引用的变量，唯一变量名，Task使用变量名绑定变量
 - 变量使用name，value(实际)，status等信息
+- 一个任务的input可以来源于另一个任务的output
+- 一个任务的output可以作为多个任务的input，但必须output存在
 - task使用name绑定自身inputs、outputs，修改的是table的value
 	- Attri：
 		- values 被记录的变量，未就绪的(除了设置好的)为None，
