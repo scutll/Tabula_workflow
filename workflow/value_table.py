@@ -107,6 +107,7 @@ class value_table:
             print(f"value's type: {type(value_toset)} does not fit with original value:{type(val)}")
             return False
 
+        self.values[value_name]["status"]=valuestatus.ready
         self.values[value_name]["value"]=val
         return True
     
@@ -117,7 +118,7 @@ class value_table:
         if old not in self.values:
             print(f"fail to find {old}")
             return False
-        elif new in self.values:
+        if new in self.values:
             print(f"{new} exists")
             return False
         

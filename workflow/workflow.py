@@ -22,7 +22,6 @@ workflow 的创建
 	- serialization/deserialization 序列化/反序列化 （任务流里包括任务节点、变量表在内的所有信息）
 '''
 from Task.tasks import *
-from Task.TaskStatus import TaskStatus
 from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
@@ -42,8 +41,8 @@ class workflow:
         self.val_table=value_table()
         self.tasks=tasklist()
         self.current_task=None
-        self.starttask=self.create_task("start","start_task")
-        self.endtask=self.create_task("end","end_task")
+        self.create_task("start","start_task")
+        self.create_task("end","end_task")
 
     def create_task(self,type:str,name:None):
         '''
@@ -53,10 +52,10 @@ class workflow:
         name: 任务名称
         '''
         task_type={"start":start_task,"end":end_task,"print":print_task}
-        if type not in task:
+        if type not in task_type:
             print("notypeerror")
             return False
-        task=task_type[type](name)
+        task=task_type[type](self.val_table,name)
         self.tasks.add_task(task)
         return True
     
@@ -81,6 +80,10 @@ class workflow:
             name 任务名
         '''
         task=self.tasks.get_task_by_name(name)
+        if task is None:
+            print("no task")
+            return False
+
         if task is not None:
             self.tasks.del_task(task)
             return True
@@ -92,12 +95,16 @@ class workflow:
     def set_task_name(self,old_name,new_name):
         task=self.tasks.get_task_by_name(old_name)
         if task is None:
-            print("cannot find by name")
+            print("no task")
+            return False    
+
+        if task is None:
+            print("cannot find and set task name")
             return False
         
         else:
             task.name=new_name
-            return False
+            return True
         
     def has_task(self,task):
         '''
@@ -112,15 +119,26 @@ class workflow:
         '''
         for task in self.tasks.list:
             if task.type != "start":
-                task.setstatus(TaskStatus.WAITING)
+                task.setstatus("waiting")
             elif task.type == "start":
-                task.setstatus(TaskStatus.READY)
+                task.setstatus("ready")
     
-    def add_input(self,task:base_taskspec,input_name):
+    def add_input(self,task,input_name):
         '''
         为任务添加新的变量
             注册到变量表并添加到task的inputs里
+            params:
+                task:name of task
         '''
+        task=self.tasks.get_task_by_name(task)
+        if task is None:
+            print("no task")
+            return False
+
+        if task is None:
+            print("no task")
+            return False
+        
         if input_name in task.inputs:
             print(f"{input_name} exists in task's inputs")
             return False
@@ -129,30 +147,57 @@ class workflow:
         task.add_input(input_name)
         return True
     
-    def del_input(self,task:base_taskspec,input_name):
+    def del_input(self,task,input_name):
         '''
         为任务删除变量
         当该任务为最后一个拥有该变量的任务时将该变量移除出变量表
+        params:
+                task:name of task
         '''
-        if input_name not in self.val_table.values or task.inputs:
+        task=self.tasks.get_task_by_name(task)
+        if task is None:
+            print("no task")
+            return False
+        
+        if task is None:
+            print("no task")
+            return False
+
+        if task is None:
+            print("no task")
+            return False
+        if input_name not in self.val_table.values or input_name not in task.inputs:
             print("fail to find the input")
             return False
         task.remove_input(input_name)
 
         NeedToRemove = True
         for task in self.tasks.list:
-            if input_name in task.inputs or task.outputs:
+            if input_name in task.inputs or input_name in task.outputs:
                 NeedToRemove = False
         if NeedToRemove:
             self.val_table.del_value(input_name)
             print("the last input deleted")
         return True
 
-    def add_output(self,task:base_taskspec,output_name):
+
+
+    def add_output(self,task,output_name):
         '''
         为任务添加输出
             注册到变量表并加入outputs
+        params:
+                task:name of task
         '''
+        task=self.tasks.get_task_by_name(task)
+        if task is None:
+            print("no task")
+            return False
+        
+        if task is None:
+            print("no task")
+            return False    
+
         if output_name in task.outputs:
             print(f"{output_name} exists in task's outputs")
             return False
@@ -163,19 +208,30 @@ class workflow:
         task.add_output(output_name)
         return True
     
-    def del_output(self,task:base_taskspec,output_name):
+    def del_output(self,task,output_name):
         '''
         为任务删除输出
             当其他变量以该输出为input时需要删除该input
+        params:
+                task:name of task
         '''
-        if output_name not in self.val_table.values or task.outputs:
+        task=self.tasks.get_task_by_name(task)
+        if task is None:
+            print("no task")
+            return False
+
+        if task is None:
+            print("no task")
+            return False
+        
+        if output_name not in self.val_table.values or output_name not in task.outputs:
             print("fail to find output")
             return False
         
         task.remove_output(output_name)
         for task in self.tasks.list:
             if output_name in task.inputs:
-                self.del_input(task,output_name)
+                self.del_input(task.name,output_name)
         return True
     
     def set_value_name(self,old,new):
@@ -194,9 +250,12 @@ class workflow:
     def connect(self,front_task,back_task):
         '''
         连接任务
+        params: names of tasks
         front_task -> back_task
         '''
-        self.tasks.connect(front_task,back_task)
+        if not self.tasks.connect(front_task,back_task):
+            print("fail to connect")
+            return False
         if not self.tasks.is_DAG():
             print("forms a non_DAG after connection")
             self.disconnect(front_task,back_task)
@@ -211,13 +270,24 @@ class workflow:
         '''
         return self.tasks.disconnect(front_task,back_task)
 
+    def task(self,name):
+        '''
+        根据任务名返回工作流里的任务
+        name: 任务名
+        '''
+        return self.tasks.get_task_by_name(name)
 
+
+
+    def run(self):
+        pass
 
     def check_(self):
         pass
 
     def show(self):
-        pass
+        self.tasks.tasks()
+        
 
     def serialization(self):
         pass

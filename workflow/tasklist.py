@@ -43,28 +43,35 @@ class tasklist:
         return True
     
 
-    def connect(self,front,back):
+    def connect(self,front:str,back:str):
 
         '''
         连接任务节点,未前后节点设置
         params:
+        (str) name of tasks
             front -> back
         '''
-        if front or back not in self.list:
+        front=self.get_task_by_name(front)
+        back=self.get_task_by_name(back)
+        if front not in self.list or back not in self.list:
             print("front and back not in list both")
             return False
-        elif front and back in self.list:
+        elif front in self.list and back in self.list:
+            if self.list.has_edge(front,back):
+                print("connection exists already")
+                return False
             self.list.add_edge(front,back)
             return True
         
-    def disconnect(self,front,back):
+    def disconnect(self,front:str,back:str):
         '''
         删除节点连接
-        params:
+        params:(name of tasks)
             front !=> back
         '''
-
-        if front or back not in self.list:
+        front=self.get_task_by_name(front)
+        back=self.get_task_by_name(back)
+        if front not in self.list or back not in self.list:
             print("front and back not in list both")
             return False
         elif front and back in self.list:
@@ -115,6 +122,16 @@ class tasklist:
             print(f"name: {task.name}")
             print(f"  id: {task.id}")
             print(f"type: {task.type}")
+            print(f"status: {task.status}")
+            print()
+            print("inputs:")
+            for input in task.inputs:
+                print(input)
+            print()
+            print("outputs:")
+            for output in task.outputs:
+                print(output)
+
             print('-'*25)
         return self.list
 

@@ -70,7 +70,7 @@
 		- taskstatus
 		- outputs
 		- inputs
-		- name 任务名称
+		- name 任务名称 默认(id前八位)
 		- id task+uuid4
 	- Methods：
 		- run（父类不定义）
@@ -85,8 +85,11 @@
 		- set_outputs 绑定所有输出
 		- add_output 绑定输出变量
 		- change_output 替换输出变量
-
+	
 		- setstatus 设置状态
+		- is_ready 任务是否准备好
+		- is_completed 任务是否已经运行完成
+		- is_canceled 任务是否被取消
 ### tasks
 - 设计各种任务类型
 - 基本属性方法
@@ -122,6 +125,7 @@
 	- 初始化时就有start_task和end_task
 - Methods:
     操作任务的方法尽量减少直接引用任务对象或者id,最好是名称,因此工作流任务的名称不能重复
+	- 使用任务名作为参数传递给方法
 	- create_task 创建任务
 	- delete_task_by_id/by_name 删除任务
 	- has_task 任务是否在工作流中

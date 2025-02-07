@@ -7,14 +7,14 @@ class start_task(base_taskspec):
     工作流的开始任务，接受用户的输入
     默认有一个输入(DEFAULT_START_INPUT)
     '''
-    def __init__(self,value_table:value_table,name=None):
-        super().__init__(value_table,name)
+    def __init__(self,val_table:value_table,name=None):
+        super().__init__(val_table,name)
         self.type="start"
         self.val_table.add_value("DEFAULT_START_INPUT")
         self.add_input("DEFAULT_START_INPUT")
 
     
-    def run():
+    def run(self):
         print("workflow starts:")
     
     
@@ -24,8 +24,8 @@ class end_task(base_taskspec):
     '''
     工作流的结束任务，将一些变量以一定方式组织成文本输出给用户
     '''
-    def __init__(self,value_table:value_table,name=None):
-        super().__init__(value_table,name)
+    def __init__(self,val_table:value_table,name=None):
+        super().__init__(val_table,name)
         self.type="end"
 
 
@@ -48,6 +48,10 @@ class end_task(base_taskspec):
         for input in self.inputs:
             if str("{"+input+"}") in content:
                 self.content["values"].append(input)
+
+        for output in self.outputs:
+            if str("{"+output+"}") in content:
+                self.content["values"].append(output)
 
         self.content["content"]=content
         pass
@@ -76,8 +80,8 @@ class print_task(base_taskspec):
     只是简单的把input打印出来
     测试用
     '''
-    def __init__(self,value_table=value_table,name=None):
-        super().__init__(value_table,name)
+    def __init__(self,val_table=value_table,name=None):
+        super().__init__(val_table,name)
         self.type="print"
 
 

@@ -14,12 +14,12 @@ class base_taskspec:
         '''
         创建任务基本内容:
             val_table: 工作流的变量表
-            name: 任务名称
+            name: 任务名称  默认为id前8位
 
         '''
         self.status=TaskStatus.ZERO
-        self.name=name
         self.id=get_task_id()
+        self.name=name if name is not None else self.id[0:8]
         self.val_table=val_table
         #output初始拥有
         # self.outputs=[
@@ -56,6 +56,7 @@ class base_taskspec:
             input=self.val_table.values[input]
             if input["value"] is None or input["status"] is valuestatus.uninitialized:
                 return False
+        self.status=TaskStatus.READY
         return True
     
     def add_input(self,input):
@@ -76,9 +77,9 @@ class base_taskspec:
         return True if succeed
         input: a str of the name of value
         '''
-        if input not in self.val_table.values:
-            print(f"{input} does not exist in valueTable")
-            return False
+        # if input not in self.val_table.values:
+        #     print(f"{input} does not exist in valueTable")
+        #     return False
         if input not in self.inputs:
             print(f"{input} not in inputs")
             return False
@@ -107,12 +108,12 @@ class base_taskspec:
 
     def remove_output(self,output):
         '''
-        删除设置的输出
+        删除设置的输出(任务的输出，不影响value_table)
 
         '''
-        if output not in self.val_table.values:
-            print(f"{output} does not exist in valueTable")
-            return False
+        # if output not in self.val_table.values:
+        #     print(f"{output} does not exist in valueTable")
+        #     return False
         if output not in self.outputs:
             print(f"{output} not in outputs")
             return False
@@ -159,12 +160,41 @@ class base_taskspec:
         self.add_output(change)
         return True
 
-    def setstatus(self,status):
-        if status not in taskstatus:
+    def set_status(self,status):
+        '''
+        设置状态:
+        params: (str)status 
+        ZERO
+        READY
+        WAITING
+        COMPLETED
+        CANCELED
+        RUNNING
+        ERROR
+        '''
+        status_dict={"zero":TaskStatus.ZERO,"ready":TaskStatus.READY,"waiting":TaskStatus.WAITING,"completed":TaskStatus.COMPLETED,"canceled":TaskStatus.CANCELED,"running":TaskStatus.RUNNING,"error":TaskStatus.ERROR}
+        
+        if status_dict[status] not in taskstatus:
             print("unknown status!")
             return False
-        self.status=status
-            
+        self.status=status_dict[status]
+
+    '''
+     状态判断
+     is_ready
+     is_completed
+     is_canceled
+    '''   
+
+    def is_ready(self):
+        return True if self.status == TaskStatus.READY else False
+    
+    def is_completed(self):
+        return True if self.status == TaskStatus.COMPLETED else False
+    
+    def is_canceled(self):
+        return True if self.status == TaskStatus.CANCELED else False
+    
 
     
 
