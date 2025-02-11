@@ -85,7 +85,9 @@
 		- set_outputs 绑定所有输出
 		- add_output 绑定输出变量
 		- change_output 替换输出变量
-	
+		- set_value 设置变量
+		- value 获取变量值
+ 	
 		- setstatus 设置状态
 		- is_ready 任务是否准备好
 		- is_completed 任务是否已经运行完成
@@ -142,7 +144,13 @@
 	- check_ 检查是否满足运行格式
 		- 怎么样的任务流是可运行的?
 	- run 运行工作流
-	- 
+	- run 运行逻辑
+		- 使用队列管理待运行的任务列表
+		- 初始start任务在队列中
+		- 每次将队列的任务取出并运行，然后将任务在有向图中的子任务入队
+			- 任务运行前检查输入是否齐全
+			- 当任务被标记为canceled则不入队
+		- 一直循环直到队列空
 	- serialization/deserialization 序列化/反序列化 （任务流里包括任务节点、变量表在内的所有信息）
 	- 
 

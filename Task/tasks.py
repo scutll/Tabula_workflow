@@ -1,7 +1,7 @@
 from Task.TaskStatus import TaskStatus
 from Task.base_taskspec import base_taskspec
 from workflow.value_table import value_table
-
+from utils.llm_api import run_llm
 class start_task(base_taskspec):
     '''
     工作流的开始任务，接受用户的输入
@@ -10,12 +10,13 @@ class start_task(base_taskspec):
     def __init__(self,val_table:value_table,name=None):
         super().__init__(val_table,name)
         self.type="start"
-        self.val_table.add_value("DEFAULT_START_INPUT")
-        self.add_input("DEFAULT_START_INPUT")
 
+        self.add_input("DEFAULT_START_INPUT")
+        self.add_output("DEFAULT_START_OUTPUT")
     
     def run(self):
-        print("workflow starts:")
+        self.set_value(self.inputs[0],self.outputs[0])
+        self.set_status("completed")
     
     
 
@@ -27,7 +28,8 @@ class end_task(base_taskspec):
     def __init__(self,val_table:value_table,name=None):
         super().__init__(val_table,name)
         self.type="end"
-
+        # self.add_input("DEFAULT_END_INPUT")
+        self.add_output("DEFAULT_END_OUTPUT")
 
         '''
         输出的组织形式：
@@ -49,9 +51,9 @@ class end_task(base_taskspec):
             if str("{"+input+"}") in content:
                 self.content["values"].append(input)
 
-        for output in self.outputs:
-            if str("{"+output+"}") in content:
-                self.content["values"].append(output)
+        # for output in self.outputs:
+        #     if str("{"+output+"}") in content:
+        #         self.content["values"].append(output)
 
         self.content["content"]=content
         pass
@@ -68,8 +70,8 @@ class end_task(base_taskspec):
         for val in values:
             replave_val=self.val_table.get_value(val) if self.val_table.get_value(val) is not None else ""
             content=content.replace(str("{"+val+"}"),replave_val)
-        print(content)
-        pass
+        self.set_value(self.outputs[0],content)
+        self.set_status("completed")
 
 
 
@@ -80,7 +82,7 @@ class print_task(base_taskspec):
     只是简单的把input打印出来
     测试用
     '''
-    def __init__(self,val_table=value_table,name=None):
+    def __init__(self,val_table:value_table,name=None):
         super().__init__(val_table,name)
         self.type="print"
 
@@ -91,3 +93,43 @@ class print_task(base_taskspec):
             input=self.val_table.get_value(input)
             print(input)
         print("-"*25)
+
+
+
+class llm_task(base_taskspec):
+    '''
+    调用大模型的任务
+    接受inputs组成的文本然后输出
+    '''
+    def __init__(self,val_table:value_table,name=None):
+        super().__init__(val_table,name)
+        self.type="llm"
+        self.content=None
+        self.add_output("llm_output")
+
+
+    def run(self):
+        '''
+        使用content的内容向大语言模型提问,获取输出到output
+        '''
+        print("question: ",self.content)
+        output=self.outputs[0]
+        self.set_value(output,run_llm(self.content))
+        self.set_status("completed")
+
+
+    
+    def set_input_content(self,content:str):
+        '''
+        设置输出为一定格式如:
+            {input1} is {input2},how to {input3}?
+        寻找用到的input
+        将{input} 替换为input在变量表中的实际内容
+        将设置好的文本传递到content中
+        '''
+        tmp=content
+        for input in self.inputs:
+            replave_val=self.val_table.get_value(input) if self.val_table.get_value(input) is not None else ""
+            if "{"+input+"}" in tmp:
+                tmp=tmp.replace(str("{"+input+"}"),replave_val)
+        self.content=tmp

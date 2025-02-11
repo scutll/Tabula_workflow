@@ -39,7 +39,7 @@ class base_taskspec:
         turn the task into canceled status
         '''
         print("task canceled!")
-        self.status=TaskStatus.CANCELED
+        self.set_status("canceled")
     
     
     
@@ -65,8 +65,8 @@ class base_taskspec:
         input:the string of name of the value
         '''
         if input not in self.val_table.values:
-            print(f"{input} does not exist")
-            return False
+            print(f"{input} add to table")
+            self.val_table.add_value(input)
 
         self.inputs.append(input)
         return True
@@ -137,8 +137,8 @@ class base_taskspec:
         将value_table 上的output绑定到task上
         '''
         if output not in self.val_table.values:
-            print(f"{output} does not exist")
-            return False
+            print(f"{output} add to table")
+            self.val_table.add_value(output)
 
         self.outputs.append(output)
         return True
@@ -160,7 +160,7 @@ class base_taskspec:
         self.add_output(change)
         return True
 
-    def set_status(self,status):
+    def set_status(self,status:str):
         '''
         设置状态:
         params: (str)status 
@@ -172,6 +172,8 @@ class base_taskspec:
         RUNNING
         ERROR
         '''
+        status=status.lower()
+
         status_dict={"zero":TaskStatus.ZERO,"ready":TaskStatus.READY,"waiting":TaskStatus.WAITING,"completed":TaskStatus.COMPLETED,"canceled":TaskStatus.CANCELED,"running":TaskStatus.RUNNING,"error":TaskStatus.ERROR}
         
         if status_dict[status] not in taskstatus:
@@ -179,12 +181,20 @@ class base_taskspec:
             return False
         self.status=status_dict[status]
 
+    def set_value(self,value_name,value):
+        return self.val_table.set_value(value_name,value)
+
+    def value(self,value_name):
+        return self.val_table.get_value(value_name)
+
+
     '''
      状态判断
      is_ready
      is_completed
      is_canceled
     '''   
+
 
     def is_ready(self):
         return True if self.status == TaskStatus.READY else False

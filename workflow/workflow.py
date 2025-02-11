@@ -3,29 +3,13 @@ workflow 的创建
 
 - Methods:
     操作任务的方法尽量减少直接引用任务对象或者id,最好是名称,因此工作流任务的名称不能重复
-	- create_task 创建任务
-	- delete_task_by_id/by_name 删除任务
-    - set_task_name 设置任务名
-	- add_input 为指定任务添加输入
-	- del_input 为指定任务删除输入
-	- add_output 添加输出
-	- del_output 删除输出
-	- set_value_name 修改变量名-这样的话所有任务都得修改一次
-	- show 展示任务连接关系，返回数据化形式的结构（给前端用）
-	- conncet 连接任务用
-	- disconnect 删除任务连接
-    - init_tasks 初始化任务状态，全部清除为waiting状态
-	- check_ 检查是否满足运行格式
-		- 怎么样的任务流是可运行的?
-	- run 运行工作流
-	- 
-	- serialization/deserialization 序列化/反序列化 （任务流里包括任务节点、变量表在内的所有信息）
 '''
 from Task.tasks import *
 from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
 
+task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task}
 class workflow:
     def __init__(self,name:str):
         '''
@@ -43,6 +27,8 @@ class workflow:
         self.current_task=None
         self.create_task("start","start_task")
         self.create_task("end","end_task")
+        self.start_=self.task("start_task")
+
 
     def create_task(self,type:str,name:None):
         '''
@@ -51,7 +37,7 @@ class workflow:
         type: 要创建的任务类型
         name: 任务名称
         '''
-        task_type={"start":start_task,"end":end_task,"print":print_task}
+        
         if type not in task_type:
             print("notypeerror")
             return False
@@ -253,7 +239,10 @@ class workflow:
         params: names of tasks
         front_task -> back_task
         '''
-        if not self.tasks.connect(front_task,back_task):
+        if self.tasks.connect(front_task,back_task):
+            if self.task(front_task).outputs[0] is not None:
+                self.add_input(back_task,self.task(front_task).outputs[0])
+        else:
             print("fail to connect")
             return False
         if not self.tasks.is_DAG():
@@ -280,10 +269,28 @@ class workflow:
 
 
     def run(self):
-        pass
+        '''
+        运行工作流
+        使用队列,初始入队start任务并出队,设置为current_task,每次将该任务的successors入队,status为canceled的则省略(那样被取消的任务以后的任务都会被取消,而汇合点不会被取消),然后弹队并运行直到队空
+        '''
+        task_queue=[self.start_]
+        while len(task_queue) != 0:
+            self.current_task=task_queue.pop(-1)
+            print(self.current_task.name," running:")
+            self.current_task.run()
+            for next in list(self.tasks.list.successors(self.current_task)):
+                if not next.is_canceled():
+                    task_queue.append(next)            
+        print("finished")
 
     def check_(self):
-        pass
+        '''
+        检查工作流能否运行:
+            是否成环
+        '''
+        if self.tasks.is_DAG():
+            return False
+        return True
 
     def show(self):
         self.tasks.tasks()
