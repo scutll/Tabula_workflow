@@ -25,17 +25,20 @@ class workflow:
         self.val_table=value_table()
         self.tasks=tasklist()
         self.current_task=None
-        self.create_task("start","start_task")
-        self.create_task("end","end_task")
-        self.start_=self.task("start_task")
+        self.create_task("start","start")
+        self.create_task("end","end")
+        self.start_=[self.task("start")]
 
 
     def create_task(self,type:str,name:None):
         '''
-        按照需要的类型创建任务,并将任务添加到list中
-        params:
-        type: 要创建的任务类型
-        name: 任务名称
+        按照需要的类型创建任务,并将任务添加到list中\n
+        params: \n
+        type: 要创建的任务类型\n
+            start\n
+            llm\n
+            end
+        name: 任务名称\n
         '''
         
         if type not in task_type:
@@ -105,9 +108,9 @@ class workflow:
         '''
         for task in self.tasks.list:
             if task.type != "start":
-                task.setstatus("waiting")
+                task.set_status("waiting")
             elif task.type == "start":
-                task.setstatus("ready")
+                task.set_status("ready")
     
     def add_input(self,task,input_name):
         '''
@@ -120,11 +123,11 @@ class workflow:
         if task is None:
             print("no task")
             return False
-
-        if task is None:
-            print("no task")
-            return False
         
+        if task.input_limit is not None and task.input_limit <= len(task.inputs):
+            print("number of input exceeds") 
+            return False
+
         if input_name in task.inputs:
             print(f"{input_name} exists in task's inputs")
             return False
@@ -141,13 +144,6 @@ class workflow:
                 task:name of task
         '''
         task=self.tasks.get_task_by_name(task)
-        if task is None:
-            print("no task")
-            return False
-        
-        if task is None:
-            print("no task")
-            return False
 
         if task is None:
             print("no task")
@@ -179,10 +175,10 @@ class workflow:
         if task is None:
             print("no task")
             return False
-        
-        if task is None:
-            print("no task")
-            return False    
+
+        if task.output_limit is not None and task.output_limit <= task.output_limit:
+            print("number of output exceeds")
+            return False
 
         if output_name in task.outputs:
             print(f"{output_name} exists in task's outputs")
@@ -206,9 +202,6 @@ class workflow:
             print("no task")
             return False
 
-        if task is None:
-            print("no task")
-            return False
         
         if output_name not in self.val_table.values or output_name not in task.outputs:
             print("fail to find output")
@@ -233,6 +226,42 @@ class workflow:
                 task.remove_output(old)
                 task.add_output(new)
 
+
+    def outputs_of_parents(self,name):
+        '''
+        返回该任务的所有父节点的输出
+        params: name of task
+        returns: a dict of outputs of parents
+        {
+            "task1":["output1","output2"]
+        }
+        '''
+        task=self.task(name)
+        if task is None:
+            print(f"{name} does not exist")
+            return {}
+        parents=self.parents_of(name)
+        outputs={}
+        for parent in parents:
+            outputs[parent.name]=parent.outputs
+        return outputs
+            
+    
+    def children_of(self,name):
+        '''
+        寻找任务的子节点
+        '''
+        return self.tasks.children_of(name)
+
+
+    def parents_of(self,name):
+        '''
+        寻找任务的父节点
+        '''
+        return self.tasks.parents_of(name)
+
+    
+
     def connect(self,front_task,back_task):
         '''
         连接任务
@@ -245,6 +274,7 @@ class workflow:
         else:
             print("fail to connect")
             return False
+        
         if not self.tasks.is_DAG():
             print("forms a non_DAG after connection")
             self.disconnect(front_task,back_task)
@@ -271,16 +301,37 @@ class workflow:
     def run(self):
         '''
         运行工作流
-        使用队列,初始入队start任务并出队,设置为current_task,每次将该任务的successors入队,status为canceled的则省略(那样被取消的任务以后的任务都会被取消,而汇合点不会被取消),然后弹队并运行直到队空
+        使用队列,初始入队start任务并出队,设置为current_task,运行完成后加入completed,每次检查completed里的successors,若input齐全且是在等待的状态(防止重复添加)入队,status为canceled的则省略(那样被取消的任务以后的任务都会被取消,而汇合点不会被取消),然后弹队并运行直到队空
         '''
-        task_queue=[self.start_]
+        self.init_tasks()
+        task_queue=list(self.start_)
+        completed=[]
         while len(task_queue) != 0:
-            self.current_task=task_queue.pop(-1)
+            self.current_task=task_queue.pop(0)
             print(self.current_task.name," running:")
+
+
             self.current_task.run()
-            for next in list(self.tasks.list.successors(self.current_task)):
-                if not next.is_canceled():
-                    task_queue.append(next)            
+            if self.current_task.is_completed():
+                completed.append(self.current_task)
+
+            # print(completed)
+            for task in reversed(completed):
+                delete=True
+                for next in list(self.tasks.list.successors(task)):
+                    if next.input_ready() and next.is_waiting():
+                      delete=False
+                      task_queue.append(next)  
+                      next.set_status("ready")
+
+                    # else:
+                    #     print("not ready")
+                if delete is True:
+                    completed.remove(task)
+
+
+            # print("queue:",task_queue)
+        print(self.val_table.get_value("DEFAULT_END_OUTPUT"))         
         print("finished")
 
     def check_(self):

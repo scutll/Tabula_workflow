@@ -134,6 +134,33 @@ class tasklist:
 
             print('-'*25)
         return self.list
+    
+    def children_of(self,name:str):
+        '''
+        返回指定任务的所有子节点
+        params: name of task
+        returns: a list of children of the task
+        '''
+        task=self.get_task_by_name(name)
+        if task is not None:
+            return list(self.list.successors(task))
+        else:
+            print(name," does not exist")
+            return [] 
+
+    def parents_of(self,name:str):
+        '''
+        返回指定任务的所有父节点
+        params: name of task
+        returns: a list of parents of the task
+        '''
+        task=self.get_task_by_name(name)
+        if task is not None:
+            return list(self.list.predecessors(task))
+        else:
+            print(name," does not exist")
+            return []
+
 
     def is_DAG(self):
         return nx.is_directed_acyclic_graph(self.list)

@@ -28,6 +28,8 @@ class base_taskspec:
         # self.set_outputs()
         self.inputs=[]
         self.outputs=[]
+        self.input_limit=None
+        self.output_limit=None
     
     def run(self):
         raise NotImplementedError("run not implemented!")
@@ -56,7 +58,6 @@ class base_taskspec:
             input=self.val_table.values[input]
             if input["value"] is None or input["status"] is valuestatus.uninitialized:
                 return False
-        self.status=TaskStatus.READY
         return True
     
     def add_input(self,input):
@@ -88,7 +89,7 @@ class base_taskspec:
     
 
 
-    def change_input(self,target,change):
+    def switch_input(self,target,change):
         '''
         将绑定的变量替换为另外一个
         target: 要替换的目标    str
@@ -143,7 +144,7 @@ class base_taskspec:
         self.outputs.append(output)
         return True
 
-    def change_output(self,target,change):
+    def switch_output(self,target,change):
         '''
         将绑定的变量替换为另外一个
         target: 要替换的目标    str
@@ -205,6 +206,7 @@ class base_taskspec:
     def is_canceled(self):
         return True if self.status == TaskStatus.CANCELED else False
     
-
+    def is_waiting(self):
+        return True if self.status == TaskStatus.WAITING else False
     
 

@@ -72,6 +72,8 @@
 		- inputs
 		- name 任务名称 默认(id前八位)
 		- id task+uuid4
+				- next 任务后面连接的节点（列表） None表示无限制
+		- before 任务之前连接的节点（列表）
 	- Methods：
 		- run（父类不定义）
 		- cancel 取消任务运行
@@ -79,15 +81,15 @@
 		- input_ready 检查输入是否全部齐全
 		- add_input 绑定输入
 		- remove_input 删除已绑定的输入
-		- change_input 将已绑定的输入替换为另一个输入
+		- switch_input 将已绑定的输入替换为另一个输入
 	- output也要从table已有的变量中选(处理逻辑与input相同)
 		- remove_output 删除输出
 		- set_outputs 绑定所有输出
 		- add_output 绑定输出变量
-		- change_output 替换输出变量
+		- switch_output 替换输出变量
 		- set_value 设置变量
 		- value 获取变量值
- 	
+		- 
 		- setstatus 设置状态
 		- is_ready 任务是否准备好
 		- is_completed 任务是否已经运行完成
@@ -98,8 +100,10 @@
 	- Attri：
 		- val_table 工作流的变量表
 		- type 任务节点类型
-		- next 任务后面连接的节点（列表）
-		- before 任务之前连接的节点（列表）
+
+		- 可能需要自定义的
+			- limit_input输入个数限制
+			- limit_output输出个数限制
 	- Methods:
 		- connect_ 连接任务
 		- disconnect_ 解除连接
@@ -151,6 +155,9 @@
 			- 任务运行前检查输入是否齐全
 			- 当任务被标记为canceled则不入队
 		- 一直循环直到队列空
+	- child_of 返回所有子节点
+	- parent_of 返回所有父节点
+	- outputs_of_parents 获取父节点的输出
 	- serialization/deserialization 序列化/反序列化 （任务流里包括任务节点、变量表在内的所有信息）
 	- 
 
@@ -170,7 +177,7 @@
 	- get_task_by_type 按类型查找任务
 	- tasks 查阅所有已经添加的任务
 	- serialization/deserialization 序列化/反序列化
-	- 
+
 
 
 ### value_status

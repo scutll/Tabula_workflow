@@ -2,6 +2,8 @@ from Task.TaskStatus import TaskStatus
 from Task.base_taskspec import base_taskspec
 from workflow.value_table import value_table
 from utils.llm_api import run_llm
+from time import sleep
+
 class start_task(base_taskspec):
     '''
     工作流的开始任务，接受用户的输入
@@ -15,7 +17,7 @@ class start_task(base_taskspec):
         self.add_output("DEFAULT_START_OUTPUT")
     
     def run(self):
-        self.set_value(self.inputs[0],self.outputs[0])
+        self.set_value(self.outputs[0],self.value(self.inputs[0]))
         self.set_status("completed")
     
     
@@ -28,6 +30,7 @@ class end_task(base_taskspec):
     def __init__(self,val_table:value_table,name=None):
         super().__init__(val_table,name)
         self.type="end"
+        self.output_limit=1
         # self.add_input("DEFAULT_END_INPUT")
         self.add_output("DEFAULT_END_OUTPUT")
 
@@ -105,13 +108,17 @@ class llm_task(base_taskspec):
         super().__init__(val_table,name)
         self.type="llm"
         self.content=None
-        self.add_output("llm_output")
+        self.input_content=None
+        self.output_limit=1
+        self.add_output(str(f"{self.name}_output"))
 
 
     def run(self):
         '''
         使用content的内容向大语言模型提问,获取输出到output
         '''
+        sleep(20) #防止ai频率过快
+        self.set_content(self.input_content)
         print("question: ",self.content)
         output=self.outputs[0]
         self.set_value(output,run_llm(self.content))
@@ -120,6 +127,12 @@ class llm_task(base_taskspec):
 
     
     def set_input_content(self,content:str):
+        '''
+        设置工作流时使用,将之后要使用的格式存下来
+        '''
+        self.input_content=content
+
+    def set_content(self,content:str):
         '''
         设置输出为一定格式如:
             {input1} is {input2},how to {input3}?
