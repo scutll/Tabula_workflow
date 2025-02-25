@@ -1,4 +1,5 @@
 from Task.base_taskspec import base_taskspec 
+from Task.tasks import intent_identify_task
 import networkx as nx
 
 
@@ -43,24 +44,30 @@ class tasklist:
         return True
     
 
-    def connect(self,front:str,back:str):
+    def connect(self,front:str,back:str,other:str=None):
 
         '''
         连接任务节点,未前后节点设置
         params:
         (str) name of tasks
             front -> back
+            extra -> if/else for identify_task
         '''
         front=self.get_task_by_name(front)
         back=self.get_task_by_name(back)
         if front not in self.list or back not in self.list:
             print("front and back not in list both")
             return False
+        
+        
         elif front in self.list and back in self.list:
             if self.list.has_edge(front,back):
                 print("connection exists already")
                 return False
             self.list.add_edge(front,back)
+            #意图识别使用，选择要连到否定还是肯定后续
+            if isinstance(front,intent_identify_task):
+                front.connect(back,other)
             return True
         
     def disconnect(self,front:str,back:str):

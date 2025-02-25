@@ -9,7 +9,6 @@ from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
 
-task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task}
 class workflow:
     def __init__(self,name:str):
         '''
@@ -25,12 +24,14 @@ class workflow:
         self.val_table=value_table()
         self.tasks=tasklist()
         self.current_task=None
+        self.start_=[]
+        self.end_=[]
         self.create_task("start","start")
         self.create_task("end","end")
-        self.start_=[self.task("start")]
 
 
     def create_task(self,type:str,name:None):
+        task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identity':intent_identify_task}
         '''
         按照需要的类型创建任务,并将任务添加到list中\n
         params: \n
@@ -39,13 +40,21 @@ class workflow:
             llm\n
             end
         name: 任务名称\n
+
+        若任务为:
+            start: 添加入start_ 列表
+            end: 添加入end_ 列表
         '''
         
         if type not in task_type:
             print("notypeerror")
             return False
         task=task_type[type](self.val_table,name)
-        self.tasks.add_task(task)
+        if self.tasks.add_task(task):
+            if type == "start":
+                self.start_.append(task)
+            elif type == "end":
+                self.end_.append(task)
         return True
     
     def delete_task_by_Id(self,id):
@@ -53,10 +62,18 @@ class workflow:
         按id删除任务
         params:
         id: 任务id
+        若任务为:
+            start: 移出start_ 列表
+            end: 移出end_ 列表
+
         '''
         task=self.tasks.get_task_by_Id(id)
         if task is not None:
             self.tasks.del_task(task)
+            if task.type == "start":
+                self.start_.remove(task)
+            elif task.type == "end":
+                self.end_.remove(task)
             return True
         else: 
             print("no this task in tasklist")
@@ -227,9 +244,39 @@ class workflow:
                 task.add_output(new)
 
 
-    def outputs_of_parents(self,name):
+    def outputs_of_all_parents(self,name):
         '''
         返回该任务的所有父节点的输出
+        params: name of task
+        returns: a dict of outputs of parents
+        {
+            "task1":["output1","output2"]
+        }
+        '''
+        if self.task(name) is None:
+            print("no such a task")
+            return {}
+        
+        def collect_outputs(task):
+            parents=self.parents_of(task.name)
+
+            if not parents:
+                return {}
+            # 递归实现,从后到前搜寻
+            outputs={}
+            for parent in parents:
+                outputs[parent.name]=parent.outputs
+                parent_outputs=collect_outputs(parent)
+                outputs.update(parent_outputs)
+            return outputs
+        
+        return collect_outputs(self.task(name))
+
+
+
+    def outputs_of_parents(self,name):
+        '''
+        返回该任务的父节点的输出
         params: name of task
         returns: a dict of outputs of parents
         {
@@ -262,13 +309,13 @@ class workflow:
 
     
 
-    def connect(self,front_task,back_task):
+    def connect(self,front_task,back_task,other:str=None):
         '''
         连接任务
         params: names of tasks
         front_task -> back_task
         '''
-        if self.tasks.connect(front_task,back_task):
+        if self.tasks.connect(front_task,back_task,other):
             if self.task(front_task).outputs[0] is not None:
                 self.add_input(back_task,self.task(front_task).outputs[0])
         else:
@@ -288,6 +335,22 @@ class workflow:
         front_task !=> back_task
         '''
         return self.tasks.disconnect(front_task,back_task)
+
+
+    def cancel(self,name):
+        '''
+        取消任务,使任务状态为canceled
+        params:
+            name: name of task
+        '''
+        task=self.task(name)
+        if task is None:
+            print("fail to find task")
+            return False
+        task.set_status("canceled")
+        return True
+
+
 
     def task(self,name):
         '''
@@ -330,8 +393,7 @@ class workflow:
                     completed.remove(task)
 
 
-            # print("queue:",task_queue)
-        print(self.val_table.get_value("DEFAULT_END_OUTPUT"))         
+            # print("queue:",task_queue)       
         print("finished")
 
     def check_(self):
