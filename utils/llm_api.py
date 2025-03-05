@@ -29,11 +29,15 @@ def run_ii(content):
         base_url="https://api.moonshot.cn/v1",
     )
 
+    intents = str()
+    for i , intent in enumerate(content["intents"]):
+            intents += str(f"{i} : {intent}\n")
+
     completion=client.chat.completions.create(
         model="moonshot-v1-8k",
         messages=[
-            {"role": "system", "content": "你是deepseek,你现在作为一个意图识别的节点,我将会给你一段文字信息content以及一个if条件,如果你认为这段文字信息满足if条件的描述,就输出if,否则输出else，我将根据你的回答进行分支，你的输出一定只能含有if或者else,不要有多余的回答"},
-            {"role": "user", "content":content }
+            {"role": "system", "content": str(f"你是deepseek,你现在作为一个意图识别的节点,我将会给你一段文字信息content以及一个intents列表包含一些判断信息,你要选择你认为最恰当的那个选项，给出你认为的答案，要求直接给出相应的intents列表中的元素的索引(从0开始),不要有多余的回答\n下面是intents列表的内容:\n {intents}")},
+            {"role": "user", "content":content["content"]}
         ],
         temperature=0.3
     )

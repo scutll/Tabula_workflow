@@ -1,5 +1,5 @@
 from Task.base_taskspec import base_taskspec 
-from Task.tasks import intent_identify_task
+from Task.tasks import intent_identify_task,intent_identify_task_multi_branch
 import networkx as nx
 
 
@@ -44,7 +44,7 @@ class tasklist:
         return True
     
 
-    def connect(self,front:str,back:str,other:str=None):
+    def connect(self,front:str,back:str,other=None):
 
         '''
         连接任务节点,未前后节点设置
@@ -67,6 +67,12 @@ class tasklist:
             self.list.add_edge(front,back)
             #意图识别使用，选择要连到否定还是肯定后续
             if isinstance(front,intent_identify_task):
+                if other is None:
+                    other = "if"
+                front.connect(back,other)
+            if isinstance(front,intent_identify_task_multi_branch):
+                if other is None:
+                    other = 0
                 front.connect(back,other)
             return True
         
@@ -83,7 +89,25 @@ class tasklist:
             return False
         elif front and back in self.list:
             self.list.remove_edge(front,back)
+            #删除已绑定的输出
+            for input in front.outputs:
+                if input in back.inputs:
+                    back.inputs.remove(input)
+
+            if isinstance(front,intent_identify_task):
+                if front.branch["if"] == back:
+                    front.branch["if"] = None
+                elif front.branch["else"] == back:
+                    front.branch["else"] = None
+            
+            if isinstance(front,intent_identify_task_multi_branch):
+                for intent in front.intents:
+                    if front.branch[intent] == back:
+                        del front.branch[intent]
+                        break
+
             return True
+
 
     def get_task_by_Id(self,id):
         '''

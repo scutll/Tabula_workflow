@@ -8,6 +8,7 @@ from Task.tasks import *
 from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
+import asyncio
 
 class workflow:
     def __init__(self,name:str):
@@ -31,7 +32,7 @@ class workflow:
 
 
     def create_task(self,type:str,name:None):
-        task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identity':intent_identify_task}
+        task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identify':intent_identify_task,'intent_identity_plus':intent_identify_task_multi_branch}
         '''
         按照需要的类型创建任务,并将任务添加到list中\n
         params: \n
@@ -309,7 +310,7 @@ class workflow:
 
     
 
-    def connect(self,front_task,back_task,other:str=None):
+    def connect(self,front_task,back_task,other=None):
         '''
         连接任务
         params: names of tasks
@@ -361,7 +362,7 @@ class workflow:
 
 
 
-    def run(self):
+    async def run_(self):
         '''
         运行工作流
         使用队列,初始入队start任务并出队,设置为current_task,运行完成后加入completed,每次检查completed里的successors,若input齐全且是在等待的状态(防止重复添加)入队,status为canceled的则省略(那样被取消的任务以后的任务都会被取消,而汇合点不会被取消),然后弹队并运行直到队空
@@ -369,12 +370,14 @@ class workflow:
         self.init_tasks()
         task_queue=list(self.start_)
         completed=[]
+        
         while len(task_queue) != 0:
             self.current_task=task_queue.pop(0)
             print(self.current_task.name," running:")
 
 
-            self.current_task.run()
+            await asyncio.gather(self.current_task.run())
+
             if self.current_task.is_completed():
                 completed.append(self.current_task)
 
@@ -395,6 +398,11 @@ class workflow:
 
             # print("queue:",task_queue)       
         print("finished")
+
+
+    def run(self):
+        asyncio.run(self.run_())
+
 
     def check_(self):
         '''
