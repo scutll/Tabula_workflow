@@ -210,3 +210,14 @@ class base_taskspec:
         return True if self.status == TaskStatus.WAITING else False
     
 
+    def serialization(self):
+        dict_ = dict({
+            "name":self.name,
+            "type":self.type,
+            "inputs": self.inputs,
+            "output":self.outputs,
+        })
+        return dict_
+    
+    def deserialization(self,dict_):
+        pass

@@ -1,0 +1,123 @@
+{
+    "workflow_name": "test",
+    "tasks": {
+        "tasks": {
+            "taskd188badd-806a-42b9-b583-bda0e1438bb0": {
+                "name": "start",
+                "type": "start",
+                "inputs": [
+                    "start_input"
+                ],
+                "output": [
+                    "start_output"
+                ]
+            },
+            "taska0bdc1b9-c7d4-487c-8008-57c67513666c": {
+                "name": "teacher",
+                "type": "end",
+                "inputs": [
+                    "ii1_output"
+                ],
+                "output": [
+                    "teacher_output"
+                ],
+                "output_content": "教授写的好"
+            },
+            "task8b994b1c-ffa1-4b86-9133-fba146b90365": {
+                "name": "student",
+                "type": "end",
+                "inputs": [
+                    "ii1_output"
+                ],
+                "output": [
+                    "student_output"
+                ],
+                "output_content": "学生写的好"
+            },
+            "taska73995f0-eee8-4e40-a130-c933ce02319e": {
+                "name": "llm1",
+                "type": "llm",
+                "inputs": [
+                    "start_output"
+                ],
+                "output": [
+                    "llm1_output"
+                ],
+                "input_content": "你是一名华南理工大学的教授，{start_output}"
+            },
+            "task35504cd6-ba6f-4e5b-8fb4-2fa7d45c029a": {
+                "name": "llm2",
+                "type": "llm",
+                "inputs": [
+                    "llm1_output"
+                ],
+                "output": [
+                    "llm2_output"
+                ],
+                "input_content": "华南理工大学的教授写的:{llm1_output}\n写得不太好，再写一次"
+            },
+            "task068d715d-d12b-4f6a-a1ca-d90012998ef2": {
+                "name": "llm3",
+                "type": "llm",
+                "inputs": [
+                    "start_output"
+                ],
+                "output": [
+                    "llm3_output"
+                ],
+                "input_content": "你是一个华南理工大学的大四本科生, {start_output}"
+            },
+            "task169275ae-a96e-403c-900c-3e6d05b5a133": {
+                "name": "ii1",
+                "type": "itent_identiey",
+                "inputs": [
+                    "llm2_output",
+                    "llm3_output"
+                ],
+                "output": [
+                    "ii1_output"
+                ],
+                "identify_content": null,
+                "input_content": "教授写的: {llm2_output} , 学生写的:{llm3_output}",
+                "intents": [
+                    "老师写得好",
+                    "学生写得好"
+                ],
+                "branchs": {
+                    "teacher": 0,
+                    "student": 1
+                }
+            }
+        }
+    },
+    "connections": [
+        {
+            "from": "start",
+            "to": "llm1"
+        },
+        {
+            "from": "start",
+            "to": "llm3"
+        },
+        {
+            "from": "llm1",
+            "to": "llm2"
+        },
+        {
+            "from": "llm2",
+            "to": "ii1"
+        },
+        {
+            "from": "llm3",
+            "to": "ii1"
+        },
+        {
+            "from": "ii1",
+            "to": "teacher"
+        },
+        {
+            "from": "ii1",
+            "to": "student"
+        }
+    ]
+}

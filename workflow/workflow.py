@@ -418,7 +418,11 @@ class workflow:
         
 
     def serialization(self):
-        pass
+        dict_=dict()
+        dict_["workflow_name"]=self.name
+        dict_["tasks"],dict_["connections"] = self.tasks.serialization()
+
+        return dict_
 
     def deserialization(self):
         pass

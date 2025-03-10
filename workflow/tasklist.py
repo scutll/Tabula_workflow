@@ -197,8 +197,24 @@ class tasklist:
         return nx.is_directed_acyclic_graph(self.list)
     
     def serialization(self):
-        pass
-    
+        dict_=dict()
+        tasks=dict()
+        for task in self.list:
+            if isinstance(task,base_taskspec):
+                tasks[task.id]=task.serialization()
+        dict_["tasks"]=tasks
+
+        connections=list()
+        for task in self.list:
+            if isinstance(task,base_taskspec):
+                successors=list(self.list.successors(task))
+                for successor in successors:
+                    connections.append((dict({
+                        "from": task.name,
+                        "to": successor.name
+                    })))
+        return dict_,connections
+
     def deserialization(self):
         pass
 

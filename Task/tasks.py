@@ -22,6 +22,8 @@ class start_task(base_taskspec):
         self.set_value(self.outputs[0],self.value(self.inputs[0]))
         self.set_status("completed")
     
+    def serialization(self):
+        return super().serialization()
     
 
 
@@ -73,7 +75,10 @@ class end_task(base_taskspec):
         print(self.value(self.outputs[0]))
         self.set_status("completed")
 
-
+    def serialization(self):
+        dict_=super().serialization()
+        dict_["output_content"]=self.output_content
+        return dict_
 
 
 
@@ -142,6 +147,12 @@ class llm_task(base_taskspec):
             if "{"+input+"}" in tmp:
                 tmp=tmp.replace(str("{"+input+"}"),replave_val)
         return tmp
+    
+    def serialization(self):
+        dict_=super().serialization()
+        dict_["input_content"]=self.input_content
+        return dict_
+
 
 
 class intent_identify_task(base_taskspec):
@@ -417,3 +428,16 @@ class intent_identify_task_multi_branch(base_taskspec):
             self.pick(self.intents[0])
             print("fail to predict branch, randomly choose:")
         self.set_status("completed")
+
+    def serialization(self):
+        dict_=super().serialization()
+        dict_["identify_content"]=self.identify_content
+        dict_["input_content"]=self.input_content
+        dict_["intents"]=self.intents
+        
+        branch=dict()
+        for branch_,task in self.branch.items():
+            index = self.intents.index(branch_)
+            branch[str(task.name)]=index
+        dict_["branchs"]=branch
+        return dict_
