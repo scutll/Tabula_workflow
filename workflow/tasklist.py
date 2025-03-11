@@ -197,24 +197,33 @@ class tasklist:
         return nx.is_directed_acyclic_graph(self.list)
     
     def serialization(self):
-        dict_=dict()
+        # dict_=list()
         tasks=dict()
         for task in self.list:
             if isinstance(task,base_taskspec):
                 tasks[task.id]=task.serialization()
-        dict_["tasks"]=tasks
+        # dict_.append(tasks)
 
         connections=list()
         for task in self.list:
             if isinstance(task,base_taskspec):
                 successors=list(self.list.successors(task))
                 for successor in successors:
+                    branch_index=-1
+                    if isinstance(task,intent_identify_task_multi_branch):
+                        branch_index = task.intents.index(get_key_by_value(task.branch,successor))
                     connections.append((dict({
                         "from": task.name,
-                        "to": successor.name
+                        "to": successor.name,
+                        "branch":branch_index
                     })))
-        return dict_,connections
+        return tasks,connections
 
     def deserialization(self):
         pass
 
+def get_key_by_value(dict_:dict,value_):
+    for key,value in dict_.items():
+        if value == value_:
+            return key
+    return None

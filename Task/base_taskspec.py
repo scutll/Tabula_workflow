@@ -215,9 +215,14 @@ class base_taskspec:
             "name":self.name,
             "type":self.type,
             "inputs": self.inputs,
-            "output":self.outputs,
+            "outputs":self.outputs,
         })
         return dict_
     
     def deserialization(self,dict_):
-        pass
+        self.name = dict_["name"]
+        for input in dict_["inputs"]:
+            self.add_input(input)
+        for output in dict_["outputs"]:
+            self.add_output(output)
+        return True

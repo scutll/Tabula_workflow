@@ -8,6 +8,7 @@ from Task.tasks import *
 from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
+import json
 import asyncio
 
 class workflow:
@@ -27,8 +28,8 @@ class workflow:
         self.current_task=None
         self.start_=[]
         self.end_=[]
-        self.create_task("start","start")
-        self.create_task("end","end")
+        # self.create_task("start","start")
+        # self.create_task("end","end")
 
 
     def create_task(self,type:str,name:None):
@@ -56,7 +57,7 @@ class workflow:
                 self.start_.append(task)
             elif type == "end":
                 self.end_.append(task)
-        return True
+        return task
     
     def delete_task_by_Id(self,id):
         '''
@@ -293,7 +294,13 @@ class workflow:
         for parent in parents:
             outputs[parent.name]=parent.outputs
         return outputs
-            
+        
+    def set_value(self,value_name,value):
+        if value_name not in self.val_table.values:
+            print(f"{value_name} do not exist!")
+            return False
+        self.val_table.set_value(value_name,value)
+        return True    
     
     def children_of(self,name):
         '''
@@ -310,7 +317,7 @@ class workflow:
 
     
 
-    def connect(self,front_task,back_task,other=None):
+    def connect(self,front_task:str,back_task:str,other=None):
         '''
         连接任务
         params: names of tasks
@@ -420,9 +427,44 @@ class workflow:
     def serialization(self):
         dict_=dict()
         dict_["workflow_name"]=self.name
-        dict_["tasks"],dict_["connections"] = self.tasks.serialization()
+        dict_["tasks"], dict_["connections"] = self.tasks.serialization()
+        
+        # values:
+        values=dict()
+        for val_name,value in self.val_table.values.items():
+            if value["value"] is not None:
+                values[val_name] = value["value"]
+            else:
+                values[val_name] = None
+        
+        dict_["values"] = values
+        
 
         return dict_
 
-    def deserialization(self):
-        pass
+
+    @classmethod
+    def deserialization(self,json_file):
+        with open(json_file,'r',encoding='utf-8') as file:
+            data=json.load(file)
+        workflow_ = workflow(data["workflow_name"])
+        
+        #tasks:
+        for task in data["tasks"].values():
+            name = task["name"]
+            (workflow_.create_task(task["type"],name)).deserialization(task)
+            
+        #connections:
+        for connection in data["connections"]:
+            front,back = connection["from"], connection["to"]
+            workflow_.connect(front,back,connection["branch"])
+            
+        # values:
+        values=data["values"]
+        for val_name,value in values.items():
+            workflow_.set_value(val_name,value)
+    
+        return workflow_
+            
+                    
+        

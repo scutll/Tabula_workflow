@@ -25,7 +25,9 @@ class start_task(base_taskspec):
     def serialization(self):
         return super().serialization()
     
-
+    def deserialization(self, dict_):
+        return super().deserialization(dict_)
+         
 
 class end_task(base_taskspec):
     '''
@@ -74,11 +76,20 @@ class end_task(base_taskspec):
         self.set_value(self.outputs[0],content)
         print(self.value(self.outputs[0]))
         self.set_status("completed")
+        
+        
+        
 
     def serialization(self):
         dict_=super().serialization()
         dict_["output_content"]=self.output_content
         return dict_
+
+    def deserialization(self, dict_):
+        super().deserialization(dict_)
+        self.output_content=dict_["output_content"]
+        return True
+
 
 
 
@@ -153,7 +164,12 @@ class llm_task(base_taskspec):
         dict_["input_content"]=self.input_content
         return dict_
 
-
+    
+    def deserialization(self, dict_):
+        super().deserialization(dict_)
+        self.input_content = dict_["input_content"]
+        return True
+    
 
 class intent_identify_task(base_taskspec):
     '''
@@ -170,7 +186,7 @@ class intent_identify_task(base_taskspec):
 
     def __init__(self, val_table, name=None):
         super().__init__(val_table, name)
-        self.type="itent_identiey"
+        self.type="intent_identify"
         self.identify_content=None
         self.input_content=None
         self.if_=None
@@ -287,7 +303,7 @@ class intent_identify_task_multi_branch(base_taskspec):
 
     def __init__(self, val_table, name=None):
         super().__init__(val_table, name)
-        self.type="itent_identiey"
+        self.type="intent_identify_plus"
         self.identify_content=None
         self.input_content=None
         self.intents=[]
@@ -429,6 +445,7 @@ class intent_identify_task_multi_branch(base_taskspec):
             print("fail to predict branch, randomly choose:")
         self.set_status("completed")
 
+
     def serialization(self):
         dict_=super().serialization()
         dict_["identify_content"]=self.identify_content
@@ -441,3 +458,9 @@ class intent_identify_task_multi_branch(base_taskspec):
             branch[str(task.name)]=index
         dict_["branchs"]=branch
         return dict_
+    
+    def deserialization(self, dict_):
+        super().deserialization(dict_)
+        self.identify_content, self.input_content , self.intents = dict_["identify_content"], dict_["input_content"], list(dict_["intents"])
+        return True
+        
