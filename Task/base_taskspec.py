@@ -219,10 +219,14 @@ class base_taskspec:
         })
         return dict_
     
-    def deserialization(self,dict_):
+    def deserialization(self,dict_,id=None):
+        if id is not None:
+            self.id = id
         self.name = dict_["name"]
         for input in dict_["inputs"]:
-            self.add_input(input)
+            if input not in self.val_table.values:
+                self.add_input(input)
         for output in dict_["outputs"]:
-            self.add_output(output)
+            if output not in self.val_table.values:
+                self.add_output(output)
         return True

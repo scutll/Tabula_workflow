@@ -25,8 +25,8 @@ class start_task(base_taskspec):
     def serialization(self):
         return super().serialization()
     
-    def deserialization(self, dict_):
-        return super().deserialization(dict_)
+    def deserialization(self, dict_,id):
+        return super().deserialization(dict_,id)
          
 
 class end_task(base_taskspec):
@@ -85,8 +85,8 @@ class end_task(base_taskspec):
         dict_["output_content"]=self.output_content
         return dict_
 
-    def deserialization(self, dict_):
-        super().deserialization(dict_)
+    def deserialization(self, dict_,id):
+        super().deserialization(dict_,id)
         self.output_content=dict_["output_content"]
         return True
 
@@ -165,8 +165,8 @@ class llm_task(base_taskspec):
         return dict_
 
     
-    def deserialization(self, dict_):
-        super().deserialization(dict_)
+    def deserialization(self, dict_,id):
+        super().deserialization(dict_,id)
         self.input_content = dict_["input_content"]
         return True
     
@@ -452,15 +452,10 @@ class intent_identify_task_multi_branch(base_taskspec):
         dict_["input_content"]=self.input_content
         dict_["intents"]=self.intents
         
-        branch=dict()
-        for branch_,task in self.branch.items():
-            index = self.intents.index(branch_)
-            branch[str(task.name)]=index
-        dict_["branchs"]=branch
         return dict_
     
-    def deserialization(self, dict_):
-        super().deserialization(dict_)
+    def deserialization(self, dict_,id):
+        super().deserialization(dict_,id)
         self.identify_content, self.input_content , self.intents = dict_["identify_content"], dict_["input_content"], list(dict_["intents"])
         return True
         

@@ -435,7 +435,7 @@ class workflow:
             if value["value"] is not None:
                 values[val_name] = value["value"]
             else:
-                values[val_name] = None
+                continue
         
         dict_["values"] = values
         
@@ -450,9 +450,9 @@ class workflow:
         workflow_ = workflow(data["workflow_name"])
         
         #tasks:
-        for task in data["tasks"].values():
+        for key,task in data["tasks"].items():
             name = task["name"]
-            (workflow_.create_task(task["type"],name)).deserialization(task)
+            (workflow_.create_task(task["type"],name)).deserialization(task,key)
             
         #connections:
         for connection in data["connections"]:

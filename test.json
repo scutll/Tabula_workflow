@@ -1,7 +1,7 @@
 {
     "workflow_name": "test",
     "tasks": {
-        "task6f7f7a45-d982-4de9-8361-7e1bf49263f3": {
+        "taskff44f2ed-0961-4804-a845-732ee962a468": {
             "name": "start",
             "type": "start",
             "inputs": [
@@ -11,7 +11,7 @@
                 "start_output"
             ]
         },
-        "task67290d95-2494-446d-8e12-dcdc82b9b23f": {
+        "taskc82f728b-9aea-45df-9b43-b75ba3248cf3": {
             "name": "llm1",
             "type": "llm",
             "inputs": [
@@ -22,7 +22,7 @@
             ],
             "input_content": "你是一名华南理工大学的教授，{start_output}"
         },
-        "taske42bbfcf-0af5-4751-b379-72af4aaea042": {
+        "task2889da62-1b1c-4d6b-8667-7b5bb634b16c": {
             "name": "llm2",
             "type": "llm",
             "inputs": [
@@ -33,7 +33,7 @@
             ],
             "input_content": "华南理工大学的教授写的:{llm1_output}\n写得不太好，再写一次"
         },
-        "task61a125dd-f1af-46e4-98be-ca918227ead3": {
+        "task2f500af7-bfc4-4e61-84f4-e5c147f42f66": {
             "name": "llm3",
             "type": "llm",
             "inputs": [
@@ -44,7 +44,7 @@
             ],
             "input_content": "你是一个华南理工大学的大四本科生, {start_output}"
         },
-        "taskddeb0608-7a4b-4c90-88da-401a701cfb3f": {
+        "task724dcca8-8f2f-406c-b8d8-52b0f8b438be": {
             "name": "ii1",
             "type": "intent_identify_plus",
             "inputs": [
@@ -59,13 +59,9 @@
             "intents": [
                 "老师写得好",
                 "学生写得好"
-            ],
-            "branchs": {
-                "teacher": 0,
-                "student": 1
-            }
+            ]
         },
-        "task2f8bdcde-8963-4b17-a205-e7dadc8132f2": {
+        "task88a8bc18-8b3b-4d93-b720-f06ae33b231b": {
             "name": "student",
             "type": "end",
             "inputs": [
@@ -76,7 +72,7 @@
             ],
             "output_content": "学生写的好"
         },
-        "task67946bbb-82a1-48c7-9cd8-323c2b3a07e9": {
+        "task150224e6-424d-44eb-815b-a35e3a6582a3": {
             "name": "teacher",
             "type": "end",
             "inputs": [
@@ -126,13 +122,6 @@
         }
     ],
     "values": {
-        "start_input": "请你写一篇关于华南理工大学的介绍，字数一定要刚好100字，不要有多余的解释等话",
-        "start_output": null,
-        "llm1_output": null,
-        "llm2_output": null,
-        "llm3_output": null,
-        "ii1_output": null,
-        "student_output": null,
-        "teacher_output": null
+        "start_input": "请你写一篇关于华南理工大学的介绍，字数一定要刚好100字，不要有多余的解释等话"
     }
 }
