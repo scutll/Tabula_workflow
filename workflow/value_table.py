@@ -125,5 +125,8 @@ class value_table:
         self.add_value(new,self.get_value(old),self.values[old]["status"])
         self.del_value(old)
 
+    def in_table(self,value:str):
+        return value in self.values
+
     def deserialization(self):
         pass

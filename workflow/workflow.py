@@ -445,6 +445,8 @@ class workflow:
 
     @classmethod
     def deserialization(self,json_file):
+
+        
         with open(json_file,'r',encoding='utf-8') as file:
             data=json.load(file)
         workflow_ = workflow(data["workflow_name"])
@@ -460,6 +462,8 @@ class workflow:
             workflow_.connect(front,back,connection["branch"])
             
         # values:
+        if "values" not in data:
+            return workflow_
         values=data["values"]
         for val_name,value in values.items():
             workflow_.set_value(val_name,value)

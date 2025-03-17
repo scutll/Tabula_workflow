@@ -5,6 +5,7 @@ from utils.llm_api import run_llm,run_ii
 from time import sleep
 import asyncio
 from collections import OrderedDict as odict
+import re
 
 class start_task(base_taskspec):
     '''
@@ -55,6 +56,14 @@ class end_task(base_taskspec):
         到run方法里再替换为变量内容
         ''' 
         self.output_content=content
+        values_to_be_used = filter_value(content)
+        
+        # 添加content中必要的变量
+
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
+        
 
 
     def set_content(self,content:str):
@@ -87,7 +96,8 @@ class end_task(base_taskspec):
 
     def deserialization(self, dict_,id):
         super().deserialization(dict_,id)
-        self.output_content=dict_["output_content"]
+        # self.output_content=dict_["output_content"]
+        self.set_output_content(dict_["output_content"])
         return True
 
 
@@ -143,6 +153,13 @@ class llm_task(base_taskspec):
         设置工作流时使用,将之后要使用的格式存下来
         '''
         self.input_content=content
+        values_to_be_used = filter_value(content)
+
+
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
+
 
     def set_content(self,content:str):
         '''
@@ -167,7 +184,8 @@ class llm_task(base_taskspec):
     
     def deserialization(self, dict_,id):
         super().deserialization(dict_,id)
-        self.input_content = dict_["input_content"]
+        # self.input_content = dict_["input_content"]
+        self.set_input_content(dict_["input_content"])
         return True
     
 
@@ -207,6 +225,7 @@ class intent_identify_task(base_taskspec):
         设置工作流时使用,将之后要使用的格式存下来
         '''
         self.input_content=content
+        
 
 
     def set_content(self,content):
@@ -335,6 +354,11 @@ class intent_identify_task_multi_branch(base_taskspec):
         设置工作流时使用,将之后要使用的格式存下来
         '''
         self.input_content=content
+        values_to_be_used = filter_value(content)
+
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
 
 
     def set_content(self,content):
@@ -441,7 +465,7 @@ class intent_identify_task_multi_branch(base_taskspec):
         if result < len(self.intents):
             self.pick(result)
         else:
-            self.pick(self.intents[0])
+            self.pick(0)
             print("fail to predict branch, randomly choose:")
         self.set_status("completed")
 
@@ -456,6 +480,11 @@ class intent_identify_task_multi_branch(base_taskspec):
     
     def deserialization(self, dict_,id):
         super().deserialization(dict_,id)
-        self.identify_content, self.input_content , self.intents = dict_["identify_content"], dict_["input_content"], list(dict_["intents"])
+        if "identify_content" not in dict_:
+            dict_["identify_content"] = None
+        self.identify_content, self.intents = dict_["identify_content"], list(dict_["intents"])
+        self.set_input_content(dict_["input_content"])
         return True
-        
+
+def filter_value(content:str):
+    return re.findall(r"\{(.*?)\}",content)

@@ -36,7 +36,7 @@ def run_ii(content):
     completion=client.chat.completions.create(
         model="moonshot-v1-8k",
         messages=[
-            {"role": "system", "content": str(f"你是deepseek,你现在作为一个意图识别的节点,我将会给你一段文字信息content以及一个intents列表包含一些判断信息,你要选择你认为最恰当的那个选项，给出你认为的答案，要求直接给出相应的intents列表中的元素的索引(从0开始),不要有多余的回答\n下面是intents列表的内容:\n {intents}")},
+            {"role": "system", "content": str(f"你是deepseek,你现在作为一个意图识别的节点,我将会给你一段文字信息content以及一个intents列表包含一些判断信息,你要选择你认为最恰当的那个选项，给出你认为的答案，要求直接给出相应的intents列表中的元素的索引(从0开始,不要超过intents元素的数目减一),不要有多余的回答\n下面是intents列表的内容:\n {intents}")},
             {"role": "user", "content":content["content"]}
         ],
         temperature=0.3

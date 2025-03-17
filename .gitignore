@@ -3,3 +3,5 @@ __pycache__/
 test.py
 testd.py
 block/
+get_nodes_init.json
+test.json

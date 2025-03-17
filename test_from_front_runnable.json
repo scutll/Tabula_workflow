@@ -1,0 +1,171 @@
+{
+    "workflow_name": "test",
+    "tasks": {
+        "1": {
+            "id": "1",
+            "name": "开始_1",
+            "type": "start",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                }
+            }
+        },
+        "2": {
+            "id": "2",
+            "name": "大模型_1",
+            "type": "llm",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                    "input_content": "你是一个华南理工大学的大四本科生,{开始_1._output}"
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                    "reason": "",
+                    "output": ""
+                }
+            }
+        },
+        "3": {
+            "id": "3",
+            "name": "大模型_2",
+            "type": "llm",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                    "input_content": "你是一名华南理工大学的教授，{开始_1._output}"
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                    "reason": "",
+                    "output": ""
+                }
+            }
+        },
+        "4": {
+            "id": "4",
+            "name": "大模型_3",
+            "type": "llm",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                    "input_content": "华南理工大学的教授写的:{大模型_2.output}，写得不好，再写一次"
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                    "reason": "",
+                    "output": ""
+                }
+            }
+        },
+        "5": {
+            "id": "5",
+            "name": "意图识别_1",
+            "type": "intent_identify_plus",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                    "input_content": "教授写的:{大模型_3.output}，学生写的{大模型_1.output}"
+                }
+            },
+            "attempt_match": {
+                "title": "意图匹配",
+                "data": [
+                    "老师写得好",
+                    "学生写得好"
+                ]
+            }
+        },
+        "6": {
+            "id": "6",
+            "name": "结束_1",
+            "type": "end",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                    "output_content": "教授写的好"
+
+                }
+            }
+        },
+        "7": {
+            "id": "7",
+            "name": "结束_2",
+            "type": "end",
+            "input_content": {
+                "title": "输入",
+                "data": {
+                }
+            },
+            "output_content": {
+                "title": "输出",
+                "data": {
+                    "output_content": "写的好"
+                }
+            }
+        }
+    },
+    "connections": [
+        {
+            "from": "1",
+            "to": "2",
+            "branch": -1
+        },
+        {
+            "from": "1",
+            "to": "3",
+            "branch": -1
+        },
+        {
+            "from": "2",
+            "to": "5",
+            "branch": -1
+        },
+        {
+            "from": "3",
+            "to": "4",
+            "branch": -1
+        },
+        {
+            "from": "4",
+            "to": "5",
+            "branch": -1
+        },
+        {
+            "from": "5",
+            "to": "6",
+            "branch": 0
+        },
+        {
+            "from": "5",
+            "to": "7",
+            "branch": 1
+        }
+    ],
+    "nameMap": {
+        "开始_1": "1",
+        "大模型_1": "2",
+        "大模型_2": "3",
+        "大模型_3": "4",
+        "意图识别_1": "5",
+        "结束_1": "6",
+        "结束_2": "7"
+    }
+}
