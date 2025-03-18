@@ -92,6 +92,10 @@ async def recv(data,websocket):
     elif data["type"]=="callWorkflow":
         workflow_id , params = data["id"] , data["params"]
         workflow_ = Workflows_.get_workflow(workflow_id)
+
+        if workflow_ is None:
+            print(f"no workflow {workflow_id}")
+            await confirm(websocket,"fail to run workflow",data["requestId"])
         for start in workflow_.start_:
             workflow_.set_value(start.inputs[0],params)
         await confirm(websocket,"workflow running:",data['requestId'])
