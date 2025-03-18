@@ -85,7 +85,7 @@ async def recv(data,websocket):
     elif data["type"]=="getWorkflows":
         workflows = dict()
         for workflow_ in Workflows_.workflows.values():
-            workflows[workflow_.id] = workflow.serialization()
+            workflows[workflow_.id] = workflow_.serialization()
         await confirm(websocket,workflows,data['requestId']) 
 
 
