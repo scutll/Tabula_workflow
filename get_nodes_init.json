@@ -1,94 +1,91 @@
 {
     "start": {
-      "type": "start",
-      "name": "开始",
-      "description": "工作流开端",
-      "input_content": {
-        "title": "输入",
-        "data": {
-        }
-      },
-      "output_content": {
-        "title": "输出",
-        "data": {
-        }
-      }
-    },
-    "test": {
-      "type": "test",
-      "name": "测试",
-      "description": "测试节点",
-      "input_content": {
-        "title": "输入",
-        "data": {
-          "input1": "",
-          "input2": ""
-        }
-      },
-      "attempt_match": {
-        "title": "意图匹配",
-        "data": []
-      },
-      "output_content": {
-        "title": "输出",
-        "data": {
-          "message": "String",
-          "data": {
-            "content": "String",
-            "title": {
-              "content": "String",
-              "check": "Boolean"
-            }
-          }
-        }
-      }
-    },
-    "llm":{
-        "type":"llm",
-        "name":"大模型",
-        "description":"调用工作流",
-        "input_content":{
-            "title":"输出",
-            "data":{
-                "input_content":""
-            }
+        "type": "start",
+        "name": "开始",
+        "description": "工作流开端",
+        "input_content": {
+            "title": "输入",
+            "data": {}
         },
         "output_content": {
-          "title": "输出",
-          "data": {
-          }
-      }
+            "title": "输出",
+            "data": {}
+        }
     },
-    "intent_identify":{
-        "type":"intent_identify_plus",
-        "name":"意图识别",
-        "description":"根据意图选择对应分支",
-        "input_content":{
-            "title":"输入",
-            "data":{
-                "input_content":""
+    "test": {
+        "type": "test",
+        "name": "测试",
+        "description": "测试节点",
+        "input_content": {
+            "title": "输入",
+            "data": {
+                "input1": "",
+                "input2": ""
             }
         },
         "attempt_match": {
-        "title": "意图匹配",
-        "data": []
+            "title": "意图匹配",
+            "data": []
+        },
+        "output_content": {
+            "title": "输出",
+            "data": {
+                "message": "String",
+                "data": {
+                    "content": "String",
+                    "title": {
+                        "content": "String",
+                        "check": "Boolean"
+                    }
+                }
+            }
+        }
+    },
+    "llm": {
+        "type": "llm",
+        "name": "大模型",
+        "description": "调用工作流",
+        "input_content": {
+            "title": "输出",
+            "data": {
+                "input_content": ""
+            }
+        },
+        "output_content": {
+            "title": "输出",
+            "data": {
+                "output": ""
+            }
+        }
+    },
+    "intent_identify": {
+        "type": "intent_identify_plus",
+        "name": "意图识别",
+        "description": "根据意图选择对应分支",
+        "input_content": {
+            "title": "输入",
+            "data": {
+                "input_content": ""
+            }
+        },
+        "attempt_match": {
+            "title": "意图匹配",
+            "data": []
         }
     },
     "end": {
-      "type": "end",
-      "name": "结束",
-      "description": "工作流截止",
-      "input_content": {
-        "title": "输入",
-        "data": {
-
+        "type": "end",
+        "name": "结束",
+        "description": "工作流截止",
+        "input_content": {
+            "title": "输入",
+            "data": {}
+        },
+        "output_content": {
+            "title": "输出",
+            "data": {
+                "output_content": ""
+            }
         }
-      },
-      "output_content": {
-          "title": "输出",
-          "data": {
-              "output_content":""
-          }
-        }
-     }
-  }
+    }
+}
