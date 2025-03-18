@@ -2,7 +2,7 @@ import websockets
 import asyncio
 import json
 from globals.request import *
-from workflow.workflow import deserialization
+from workflow.workflow import workflow
 from workflow.workflows import *
 
 Workflows_ = Workflows()
