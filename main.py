@@ -1,35 +1,38 @@
 import websockets
 import asyncio
 import json
-import time
-import random
+from globals.request import *
+from workflow.workflow import deserialization
+from workflow.workflows import *
 
+Workflows_ = Workflows()
 '''
 信息样式，confirm类信息的data为null
-'''
+
 '{"type":"confirm", "data":null,"requestId":"1145141919810hxd"}'
-
 '''
-request_list: 从前端接收到的请求，即将执行
-request_to_send 将要发送到前端的请求
-pending_requests 发送后等待确认的请求
-'''
-request_list=[]
-request_to_send=[]
-pending_requests={}
 
-#将要发送的信息添加上requestId后加入到发送队列
-def add_to_send_list(data):
-    data['requestId']=Get_requestId()
-    request_to_send.append(data)
 
-   
 
 '''
 接收前端消息
 confirm: 删除对应pending
 其他: 将请求放入执行列表并发送确认消息
 '''
+
+
+'''
+confrim: 向客户端确认收到消息
+'''
+async def confirm(websocket, data, requestId):
+    confirm={
+            "type":"confirm",
+            "data":data,
+            "requestId":requestId
+        }
+    await websocket.send(json.dumps(confirm))
+
+
 async def recv(data,websocket):
 
     print('data: ',data)
@@ -42,31 +45,69 @@ async def recv(data,websocket):
             pending_requests[requestId]['time_out'].cancel() #取消超时任务
             print('deleting pening list:')
             del pending_requests[requestId]
+            request_response[requestId]=data
+
+    elif data['type'] == 'test':
+        print('test msg received')
+        await confirm(websocket,{},data['requestId'])        
+        
+        response=await sendMsg({"type":"getBlockID",
+        "data":{}
+        })
+        print("id:" +response['data']['id'])
+
+        response=await sendMsg({
+        "type":"insertBefore",
+        "data":{"text":"haola"},
+        "blockType":"paragraph",
+        "id":response['data']['id']
+        })
+        print("insert sucessfully ",response)
+
+    elif data["type"]=="getNodes":
+        print('sending nodes info')
+        with open("get_nodes_init.json","r",encoding="utf-8") as file:
+            nodes = json.load(file)
+        await confirm(websocket,nodes,data['requestId'])
 
 
-    elif data["type"] !='confirm': #somthing else
+    elif data["type"]=="submitWorkflow":
+        data_ = data["data"]
+        workflow_ = workflow.deserialization(data_)
+        success = Workflows_.add_workflow(workflow_)
+        if success:
+            await confirm(websocket,{"status":1},data['requestId'])
+        else:
+            await confirm(websocket,{"status":0,"err_msg":"" },data['requestId'])
+
+
+
+    elif data["type"]=="getWorkflows":
+        workflows = dict()
+        for workflow in Workflows_.workflows.values():
+            workflows[workflow.id] = workflow.serialization()
+        await confirm(websocket,workflows,data['requestId']) 
+
+
+    elif data["type"]=="callWorkflow":
+        workflow_id , params = data["id"] , data["params"]
+        workflow_ = Workflows_.get_workflow(workflow_id)
+        for start in workflow.start_:
+            workflow.set_value(start.inputs[0],params)
+        await confirm(websocket,"workflow running:",data['requestId'])
+        workflow_.run()
+
+        
+    else: #somthing else
         #后端接收消息并发送确认请求
         print('msg received! sending confirm:')
-        confirm={
-            "type":"confirm",
-            "data":None,
-            "requestId":data['requestId']
-        }
-        await websocket.send(json.dumps(confirm))
+        await confirm(websocket,{},data['requestId'])        
         print('adding to request_list')
         request_list.insert(0,data)
         print(request_list)
 
 
-'''
-get an unique requestId
-时间戳+三位随机数+py2ht
-'''
-def Get_requestId():
-    suffix='py2ht'
-    times=int(time.time())
-    rand=random.randint(100,999)
-    return str(times)+str(rand)+suffix
+
 
 
 '''
@@ -136,15 +177,20 @@ async def main():
         await asyncio.Future()
 
 if __name__=='__main__':
-    data={
-        "type":"greet",
-        "data":"hello",
-    }
-    add_to_send_list(data)
-    data={
-        "type":"send",
-        "data":"hello world",
-    }
-    add_to_send_list(data)
+
+    
+    # data={
+    #     "type":"insertAfter",
+    #     "data":{"test":"haola"},
+    #     "blockType":"paragraph"
+    # }
+    # add_to_send_list(data)
+    # data={
+    #     "type":"test",
+    #     "data":"hello",
+    # }
+    # add_to_send_list(data)
     asyncio.run(main())
+    
+   
 
