@@ -444,13 +444,17 @@ class workflow:
 
 
     @classmethod
-    def deserialization(self,json_file):
+    def deserialization(self,json):
+        # json是文件的路径
+        isfile = isinstance(json,str)
+        if isfile:
+            with open(json,'r',encoding='utf-8') as file:
+                data=json.load(file)
+            workflow_ = workflow(data["workflow_name"])
 
-        
-        with open(json_file,'r',encoding='utf-8') as file:
-            data=json.load(file)
+        # json是json格式的字典   
+        data = dict(json)
         workflow_ = workflow(data["workflow_name"])
-        
         #tasks:
         for key,task in data["tasks"].items():
             name = task["name"]
