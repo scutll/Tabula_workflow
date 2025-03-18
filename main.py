@@ -95,7 +95,7 @@ async def recv(data,websocket):
         for start in workflow_.start_:
             workflow_.set_value(start.inputs[0],params)
         await confirm(websocket,"workflow running:",data['requestId'])
-        workflow_.run()
+        await workflow_.run()
 
         
     else: #somthing else
