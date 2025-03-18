@@ -84,16 +84,16 @@ async def recv(data,websocket):
 
     elif data["type"]=="getWorkflows":
         workflows = dict()
-        for workflow in Workflows_.workflows.values():
-            workflows[workflow.id] = workflow.serialization()
+        for workflow_ in Workflows_.workflows.values():
+            workflows[workflow_.id] = workflow.deserialization()
         await confirm(websocket,workflows,data['requestId']) 
 
 
     elif data["type"]=="callWorkflow":
         workflow_id , params = data["id"] , data["params"]
         workflow_ = Workflows_.get_workflow(workflow_id)
-        for start in workflow.start_:
-            workflow.set_value(start.inputs[0],params)
+        for start in workflow_.start_:
+            workflow_.set_value(start.inputs[0],params)
         await confirm(websocket,"workflow running:",data['requestId'])
         workflow_.run()
 
