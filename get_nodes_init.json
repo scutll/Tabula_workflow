@@ -8,6 +8,10 @@
         "data": {
         }
       },
+      "start_input":{
+        "title":"自定义入参",
+        "data":["output"]
+      },
       "output_content": {
         "title": "输出",
         "data": {
@@ -56,6 +60,7 @@
         "output_content": {
           "title": "输出",
           "data": {
+            "output":""
           }
       }
     },
