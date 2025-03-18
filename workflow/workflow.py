@@ -8,7 +8,7 @@ from Task.tasks import *
 from workflow.tasklist import tasklist
 from workflow.value_table import value_table 
 from utils.id import get_workflow_id
-import json
+from utils.translate import translate,detranslate
 import asyncio
 
 class workflow:
@@ -440,7 +440,7 @@ class workflow:
         dict_["values"] = values
         
 
-        return dict_
+        return detranslate(dict_)
 
 
     @classmethod
@@ -454,6 +454,8 @@ class workflow:
 
         # json是json格式的字典   
         data = dict(json)
+        data = translate(data)
+
         workflow_ = workflow(data["workflow_name"])
         #tasks:
         for key,task in data["tasks"].items():
