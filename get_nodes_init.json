@@ -100,7 +100,6 @@
         "type":"insert_paragraph",
         "name":"插入文本块",
         "description":"插入到指定块的后面",
-        "target_block":"",
         "input_content":{
             "title":"输出",
             "data":{
