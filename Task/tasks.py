@@ -486,5 +486,8 @@ class intent_identify_task_multi_branch(base_taskspec):
         self.set_input_content(dict_["input_content"])
         return True
 
+
+
+
 def filter_value(content:str):
     return re.findall(r"\{(.*?)\}",content)
