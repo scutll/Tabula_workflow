@@ -496,6 +496,14 @@ def filter_value(content:str):
 自身并不输出，但输出会被设置成response
 '''
 available_block_type = ["paragraph","header","math","input","checklist","list","code","table","button"]
+format_insert = {
+            "type":"insertBefore",
+            "data":None,
+            "blockType":None,
+            "id":None
+        }
+
+
 class insert_after_block_task(base_taskspec):
 
     def __init__(self, val_table, name=None):
@@ -506,8 +514,15 @@ class insert_after_block_task(base_taskspec):
         self.add_output(str(f"{self.name}_output"))
 
     async def send_insrt_info(self,data):
-        response = await sendMsg
+        response = await sendMsg(data)
         return response
+
+
+    def set_target_block(self,target_block_id):
+        self.target_block = target_block_id
+
+
+
     
 class insert_paragraph(insert_after_block_task):
 
@@ -543,10 +558,15 @@ class insert_paragraph(insert_after_block_task):
     
 
     async def run(self):
-        text = {
-            "text":self.set_content(self.output_content)
-        }
-        response = self.send_insrt_info(text)
+
+        msg = format_insert
+        msg["data"] = {"text":self.set_content(self.output_content)}
+        msg["blockType"] = "paragraph"
+        msg["id"] = self.target_block
+
+        print("sending: ",msg)
+
+        response = self.send_insrt_info(msg)
         self.set_value(self.outputs[0],response)
         return True
 
