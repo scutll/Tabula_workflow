@@ -180,8 +180,6 @@ async def handle(websocket):
                 await send(request,websocket)
             await asyncio.sleep(0.1)
 
-    async def interface_for_insert():
-        pass
         
 
     await asyncio.gather(
