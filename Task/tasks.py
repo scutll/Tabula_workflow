@@ -576,8 +576,9 @@ class insert_paragraph(insert_after_block_task):
     def serialization(self):
         serial = super().serialization()
         serial["output_content"] = self.output_content
+        return serial
 
 
-    def deserialization(self, dict_, id=None):
+    def deserialization(self, dict_, id):
         super().deserialization(dict_, id)
         self.output_content = dict_["output_content"]
