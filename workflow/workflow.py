@@ -442,7 +442,7 @@ class workflow:
                 continue
         
         dict_["values"] = values
-        
+        print("workflow",dict_)
 
         return detranslate(dict_)
 
