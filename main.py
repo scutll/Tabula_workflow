@@ -3,6 +3,7 @@ import asyncio
 import json
 from globals.request import *
 from workflow.workflow import workflow
+from Task.tasks import insert_after_block_task
 from workflow.workflows import *
 
 Workflows_ = Workflows()
@@ -99,8 +100,18 @@ async def recv(data,websocket):
         if workflow_ is None:
             print(f"no workflow {workflow_id}")
             await confirm(websocket,"fail to run workflow",data["requestId"])
+        # set start params
         for start in workflow_.start_:
             workflow_.set_value(start.inputs[0],params)
+        
+        # set target_block_id for block ops tasks
+        set_target = data["insertBlockId"]
+        for task,target in set_target.items():
+            task = workflow_.task(task)
+            if task is not None and isinstance(task,insert_after_block_task):
+                task.set_target_block(target)
+
+
         await confirm(websocket,"workflow running:",data['requestId'])
         await workflow_.run_()
 
