@@ -506,6 +506,7 @@ class insert_after_block_task(base_taskspec):
         self.block_type=None
         self.output_content = None
         self.target_block = None
+        self.add_output(str(f"{self.name}_output"))
 
     async def send_insrt_info(self,data):
         response = await sendMsg
