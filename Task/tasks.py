@@ -533,7 +533,7 @@ class insert_paragraph(insert_after_block_task):
         super().__init__(val_table, name)
         self.type="insert_paragraph"
         self.block_type = "paragraph"
-        self.output_content = str(f"{self.inputs[0]}")
+        self.output_content = None
 
 
     def set_output_content(self,content):
