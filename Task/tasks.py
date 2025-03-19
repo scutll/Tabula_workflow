@@ -5,6 +5,7 @@ from utils.llm_api import run_llm,run_ii
 from time import sleep
 import asyncio
 from collections import OrderedDict as odict
+from globals.request import sendMsg
 import re
 
 class start_task(base_taskspec):
@@ -488,3 +489,75 @@ class intent_identify_task_multi_branch(base_taskspec):
 
 def filter_value(content:str):
     return re.findall(r"\{(.*?)\}",content)
+
+
+'''
+块插入节点，可以设置插入的块类型
+自身并不输出，但输出会被设置成response
+'''
+available_block_type = ["paragraph","header","math","input","checklist","list","code","table","button"]
+class insert_after_block_task(base_taskspec):
+
+    def __init__(self, val_table, name=None):
+        super().__init__(val_table, name)
+        self.block_type=None
+        self.output_content = None
+        self.target_block = None
+
+    async def send_insrt_info(self,data):
+        response = await sendMsg
+        return response
+    
+class insert_paragraph(insert_after_block_task):
+
+    def __init__(self, val_table, name=None):
+        super().__init__(val_table, name)
+        self.type="insert_paragraph"
+        self.block_type = "paragraph"
+        self.output_content = str(f"{self.inputs[0]}")
+
+
+    def set_output_content(self,content):
+        '''
+        设置输出格式，使用{变量名}做变量输出，此方法用于绑定要使用的变量名，
+        到run方法里再替换为变量内容
+        ''' 
+        self.output_content=content
+        values_to_be_used = filter_value(content)
+        
+        # 添加content中必要的变量
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
+        
+
+
+    def set_content(self,content:str):
+        tmp=content
+        for input in self.inputs:
+            replave_val=self.val_table.get_value(input) if self.val_table.get_value(input) is not None else ""
+            if "{"+input+"}" in tmp:
+                tmp=tmp.replace(str("{"+input+"}"),replave_val)
+        return tmp
+    
+
+    async def run(self):
+        text = {
+            "text":self.set_content(self.output_content)
+        }
+        response = self.send_insrt_info(text)
+        self.set_value(self.outputs[0],response)
+        return True
+
+    def serialization(self):
+        serial = super().serialization()
+        serial["blcok_type"] = "paragraph"
+        serial["output_content"] = self.output_content
+        serial["target_block"] = self.target_block
+
+
+    def deserialization(self, dict_, id=None):
+        super().deserialization(dict_, id)
+        self.block_type = dict_["block_type"]
+        self.target_block = dict_["target_block"]
+        self.output_content = dict_["output_content"]
