@@ -564,7 +564,7 @@ class insert_paragraph(insert_after_block_task):
 
         msg = format_insert
         msg["data"] = {"text":self.set_content(self.output_content)}
-        msg["blockType"] = "paragraph"
+        msg["blockType"] = self.block_type
         msg["id"] = self.target_block
 
         print("sending: ",msg)
@@ -575,13 +575,11 @@ class insert_paragraph(insert_after_block_task):
 
     def serialization(self):
         serial = super().serialization()
-        serial["blcok_type"] = "paragraph"
         serial["output_content"] = self.output_content
         serial["target_block"] = self.target_block
 
 
     def deserialization(self, dict_, id=None):
         super().deserialization(dict_, id)
-        self.block_type = dict_["block_type"]
         self.target_block = dict_["target_block"]
         self.output_content = dict_["output_content"]
