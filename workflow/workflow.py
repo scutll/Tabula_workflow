@@ -10,7 +10,6 @@ from workflow.value_table import value_table
 from utils.id import get_workflow_id
 from utils.translate import translate,detranslate
 import asyncio
-from main import websocket
 
 class workflow:
     def __init__(self,name:str):

@@ -76,7 +76,7 @@ async def recv(data,websocket):
         workflow_ = workflow.deserialization(data_)
         success = Workflows_.add_workflow(workflow_)
         if success:
-            await confirm(websocket,workflow_.serialization(),data['requestId'])
+            await confirm(websocket,{"status":1,"data":workflow_.serialization()},data['requestId'])
         else:
             await confirm(websocket,{"status":0,"err_msg":"" },data['requestId'])
 
