@@ -430,7 +430,7 @@ class workflow:
     def serialization(self):
         dict_=dict()
         dict_["workflow_name"]=self.name
-        dict_["workflow_id"] = self.id
+        dict_["id"] = self.id
         dict_["tasks"], dict_["connections"] = self.tasks.serialization()
         
         # values:
@@ -461,8 +461,8 @@ class workflow:
         data = translate(data)
 
         workflow_ = workflow(data["workflow_name"])
-        if "workflow_id" in data and data["workflow_id"] is not None:
-            workflow_.id = data["workflow_id"]
+        if "id" in data and data["id"] is not None:
+            workflow_.id = data["id"]
 
         #tasks:
         for key,task in data["tasks"].items():
