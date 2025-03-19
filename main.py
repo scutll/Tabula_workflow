@@ -74,9 +74,9 @@ async def recv(data,websocket):
     elif data["type"]=="submitWorkflow":
         data_ = data["data"]
         workflow_ = workflow.deserialization(data_)
-        replace = Workflows_.exist(workflow_)
+        replace = Workflows_.has(workflow_.id)
         if replace:
-            Workflows.del_workflow(workflow_.id)
+            Workflows_.del_workflow(workflow_.id)
         success = Workflows_.add_workflow(workflow_)
         if success:
             await confirm(websocket,workflow_.serialization(),data['requestId'])
