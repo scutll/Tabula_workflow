@@ -31,6 +31,8 @@ class workflow:
         # self.create_task("start","start")
         # self.create_task("end","end")
 
+    def set_id(self,id):
+        self.id = id
 
     def create_task(self,type:str,name:None):
         task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identify':intent_identify_task,'intent_identify_plus':intent_identify_task_multi_branch}
@@ -428,6 +430,7 @@ class workflow:
     def serialization(self):
         dict_=dict()
         dict_["workflow_name"]=self.name
+        dict_["workflow_id"] = self.id
         dict_["tasks"], dict_["connections"] = self.tasks.serialization()
         
         # values:
@@ -458,6 +461,9 @@ class workflow:
         data = translate(data)
 
         workflow_ = workflow(data["workflow_name"])
+        if "workflow_id" in data and data["workflow_id"] is not None:
+            workflow_.id = data["workflow_id"]
+
         #tasks:
         for key,task in data["tasks"].items():
             name = task["name"]
