@@ -10,6 +10,7 @@ from workflow.value_table import value_table
 from utils.id import get_workflow_id
 from utils.translate import translate,detranslate
 import asyncio
+from main import websocket
 
 class workflow:
     def __init__(self,name:str):
@@ -35,7 +36,8 @@ class workflow:
         self.id = id
 
     def create_task(self,type:str,name:None):
-        task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identify':intent_identify_task,'intent_identify_plus':intent_identify_task_multi_branch}
+        task_type={"start":start_task,"end":end_task,"print":print_task,"llm":llm_task,'intent_identify':intent_identify_task,'intent_identify_plus':intent_identify_task_multi_branch,
+                   "insert_paragraph":insert_paragraph}
         '''
         按照需要的类型创建任务,并将任务添加到list中\n
         params: \n
