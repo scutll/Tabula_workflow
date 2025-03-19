@@ -6,6 +6,9 @@ class Workflows:
         self.num_workflows = 0
         self.workflows = dict()
 
+    def exist(self,wf):
+        return wf.id in self.workflows
+
     def add_workflow(self,workflow:workflow):
         if workflow.id in self.workflows:
             print(f"workflow {workflow.name} exists already")
