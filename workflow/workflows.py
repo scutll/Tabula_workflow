@@ -6,8 +6,8 @@ class Workflows:
         self.num_workflows = 0
         self.workflows = dict()
 
-    def exist(self,wf):
-        return wf.id in self.workflows
+    def has(self,wf_id):
+        return True if wf_id in self.workflows else False
 
     def add_workflow(self,workflow:workflow):
         if workflow.id in self.workflows:
@@ -23,7 +23,7 @@ class Workflows:
         return self.workflows[id] if id in self.workflows else None
     
     def del_workflow(self,id:str):
-        if self.get_workflow_id(id) is None:
+        if self.get_workflow(id) is None:
             print(f"workflow {id} not exists")
             return False
         del self.workflows[id]
