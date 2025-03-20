@@ -406,7 +406,8 @@ class workflow:
                     completed.remove(task)
 
 
-            # print("queue:",task_queue)       
+            # print("queue:",task_queue)    
+        print(self.val_table.values)   
         print("finished")
 
 

@@ -80,7 +80,7 @@ async def recv(data,websocket):
             Workflows_.del_workflow(workflow_.id)
         success = Workflows_.add_workflow(workflow_)
         if success:
-            await confirm(websocket,workflow_.serialization(),data['requestId'])
+            await confirm(websocket,{"status":1,"data":workflow_.serialization()},data['requestId'])
         else:
             await confirm(websocket,{"status":0,"err_msg":"" },data['requestId'])
 
@@ -113,7 +113,7 @@ async def recv(data,websocket):
 
 
         await confirm(websocket,"workflow running:",data['requestId'])
-        workflow_.run()
+        await workflow_.run_()
 
         
     else: #somthing else
