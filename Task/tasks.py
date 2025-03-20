@@ -534,6 +534,7 @@ class insert_paragraph(insert_after_block_task):
         self.type="insert_paragraph"
         self.block_type = "paragraph"
         self.output_content = None
+        self.input_content = None
 
 
     def set_output_content(self,content):
@@ -548,6 +549,20 @@ class insert_paragraph(insert_after_block_task):
         for value in values_to_be_used:
             if value not in self.inputs and self.val_table.in_table(value):
                 self.add_input(value)
+
+
+    def set_input_content(self,content:str):
+        '''
+        设置工作流时使用,将之后要使用的格式存下来
+        '''
+        self.input_content=content
+        values_to_be_used = filter_value(content)
+
+
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
+
         
 
 
@@ -563,22 +578,27 @@ class insert_paragraph(insert_after_block_task):
     async def run(self):
 
         msg = format_insert
-        msg["data"] = {"text":self.set_content(self.output_content)}
+        msg["data"] = {"text":self.set_content(self.input_content)}
         msg["blockType"] = self.block_type
         msg["id"] = self.target_block
 
         print("sending: ",msg)
 
-        response = self.send_insrt_info(msg)
+        response = await self.send_insrt_info(msg)
         self.set_value(self.outputs[0],response)
         return True
 
     def serialization(self):
         serial = super().serialization()
-        serial["output_content"] = self.output_content
+        serial["input_content"] = self.input_content
+        print(serial)
         return serial
 
 
     def deserialization(self, dict_, id):
         super().deserialization(dict_, id)
         self.output_content = dict_["output_content"]
+        self.input_content = dict_["input_content"]
+        print(self.input_content)
+
+

@@ -1,22 +1,22 @@
 {
     "start": {
-      "type": "start",
-      "name": "开始",
-      "description": "工作流开端",
-      "input_content": {
-        "title": "输入",
-        "data": {
+        "type": "start",
+        "name": "开始",
+        "description": "工作流开端",
+        "input_content": {
+            "title": "输入",
+            "data": {}
+        },
+        "start_input": {
+            "title": "自定义入参",
+            "data": [
+                "output"
+            ]
+        },
+        "output_content": {
+            "title": "输出",
+            "data": {}
         }
-      },
-      "start_input":{
-        "title":"自定义入参",
-        "data":["output"]
-      },
-      "output_content": {
-        "title": "输出",
-        "data": {
-        }
-      }
     },
     "test": {
         "type": "test",
@@ -58,11 +58,11 @@
             }
         },
         "output_content": {
-          "title": "输出",
-          "data": {
-            "output":""
-          }
-      }
+            "title": "输出",
+            "data": {
+                "output": ""
+            }
+        }
     },
     "intent_identify": {
         "type": "intent_identify_plus",
@@ -93,22 +93,23 @@
                 "output_content": ""
             }
         }
-     },
-     "insert_paragraph":{
-        "type":"insert_paragraph",
-        "name":"插入文本块",
-        "description":"插入到指定块的后面",
-        "input_content":{
-            "title":"输出",
-            "data":{
+    },
+    "insert_paragraph": {
+        "type": "insert_paragraph",
+        "name": "插入文本块",
+        "description": "插入到指定块的前面",
+        "input_content": {
+            "title": "输入",
+            "data": {
+                "input_content": ""
             }
         },
         "output_content": {
-          "title": "输出",
-          "data": {
-            "output_content":"",
-            "output":""
-          }
-      }
+            "title": "输出",
+            "data": {
+                "output_content": "",
+                "output": ""
+            }
+        }
     }
-  }
+}
