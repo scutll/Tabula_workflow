@@ -589,16 +589,78 @@ class insert_paragraph(insert_after_block_task):
         return True
 
     def serialization(self):
-        serial = super().serialization()
-        serial["input_content"] = self.input_content
-        print(serial)
-        return serial
+        dict_ = super().serialization()
+        dict_["input_content"] = self.input_content
+        return dict_
 
 
     def deserialization(self, dict_, id):
         super().deserialization(dict_, id)
-        self.output_content = dict_["output_content"]
-        self.input_content = dict_["input_content"]
-        print(self.input_content)
+        self.set_output_content(dict_["output_content"])
+        self.set_input_content(dict_["input_content"])
+        # self.output_content = dict_["output_content"]
+        # self.input_content = dict_["input_content"]
+        # print(self.input_content)
 
 
+class insert_alert(insert_after_block_task):
+
+    def __init__(self, val_table, name=None):
+        super().__init__(val_table, name)
+        self.type="insert_alert"
+        self.block_type = "alert"
+        self.msg_type = "warning"
+        self.msg_align = "left"
+        self.input_content = None
+
+
+    def set_input_content(self,content:str):
+        '''
+        设置工作流时使用,将之后要使用的格式存下来
+        '''
+        self.input_content=content
+        values_to_be_used = filter_value(content)
+
+
+        for value in values_to_be_used:
+            if value not in self.inputs and self.val_table.in_table(value):
+                self.add_input(value)
+
+        
+
+
+    def set_content(self,content:str):
+        tmp=content
+        for input in self.inputs:
+            replave_val=self.val_table.get_value(input) if self.val_table.get_value(input) is not None else ""
+            if "{"+input+"}" in tmp:
+                tmp=tmp.replace(str("{"+input+"}"),replave_val)
+        return tmp
+
+    async def run(self):
+        msg = format_insert
+        msg["blockType"] = self.block_type
+        msg["id"] = self.target_block
+        msg["data"] = {
+            "type":self.msg_type,
+            "align":self.msg_align,
+            "message":self.set_content(self.input_content)
+            }
+        
+        print("sending: ",msg)
+
+        response = await self.send_insrt_info(msg)
+        self.set_value(self.outputs[0],response)
+        return True
+        
+
+    async def serialization(self):
+        dict_ = super().serialization()
+        dict_["input_content"] = self.input_content
+        return dict_
+    
+
+    async def deserialization(self, dict_, id=None):
+        super().deserialization(dict_, id)
+        self.set_input_content(dict_["input_content"])
+        
